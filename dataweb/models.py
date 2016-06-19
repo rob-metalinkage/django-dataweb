@@ -72,6 +72,7 @@ class URIResource(models.Model):
     # URI doesnt need to be a registered Namespace unless you want to use prefix:term expansion for it
     uri         = models.CharField(blank=True,max_length=250,verbose_name=_(u'URI'),editable=True)   
     label  = models.CharField(_(u'label'),blank=True,max_length=255)
+    slug        = exfields.AutoSlugField(populate_from=('uri'))
    
     def __unicode__(self):
         return self.label
@@ -86,6 +87,7 @@ class QBDimension(URIResource):
         A RDF-Datacube Dimension. If is_class is set True then this will be treated as a class and its declared sub_types will inherit the properties. 
         A Class will also be rendered using a rdfs and OWL class formalism unless a OWL class definition link is provided. If one is provided this will be loaded to the target triple store.
     """
+    objects = URIResourceManager()
     is_class = models.BooleanField(help_text=_(u'Check if this is a class of Dimensions'))  
     owl = models.URLField(null=True, blank=True,help_text=_(u'Canonical OWL definition. With an RDF-IO mappings this may be propagated to the target RDF datastore, or generated automatically'))  
     sub_type_of = models.ForeignKey('self',null=True, blank=True,help_text=_(u'Specialises this as base definition.'), limit_choices_to={'is_class' : True})
