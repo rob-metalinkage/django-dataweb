@@ -1,0 +1,16 @@
+@prefix skos: <http://www.w3.org/2004/02/skos/core#>
+@prefix prof: <http://resources.opengeospatial.org/def/ontology/prof/> 
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> 
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> 
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> 
+@prefix qb: <http://purl.org/linked-data/cube#> 
+@ prefix qb4st: <http://resources.opengeospatial.org/def/ontology/stqb/>
+
+($1 prof:implements $2) -> ($1 rdfs:subClassOf $2)
+($1 prof:implements $2) -> ($1 prof:implementsTransitive $2)
+($1 prof:implements $2), ($2 prof:implements $3 ) -> ($1 prof:implementsTransitive $3)
+
+($1 prof:implementsTransitive $2) ($2 qb:codelist $3) -> ($1 prof:codelistTransitive $3)
+($1 prof:implementsTransitive $2) ($2 rdfs:range $3) -> ($1 prof:rangeTransitive $3)
+($1 prof:implementsTransitive $2) ($2 qb:concept $3) -> ($1 prof:conceptTransitive $3)
+($1 prof:implementsTransitive $2) ($2 qb:concept $3) -> ($1 prof:conceptTransitive $3)

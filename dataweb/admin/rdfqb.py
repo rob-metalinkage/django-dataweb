@@ -11,9 +11,30 @@ class QBDimensionInline(admin.TabularInline):
 class QBDimensionAdmin(admin.ModelAdmin):
     #inlines = [ QBDimensionInline ]
     pass
+
+class QBMeasureAdmin(admin.ModelAdmin):
+    #inlines = [ QBDimensionInline ]
+    pass
+    
+class QBRealNumberMeasureAdmin(admin.ModelAdmin):
+    #inlines = [ QBDimensionInline ]
+    pass
+    
+class QBCodedMeasureAdmin(admin.ModelAdmin):
+    #inlines = [ QBDimensionInline ]
+    pass
+    
 class QBCodedDimensionAdmin(admin.ModelAdmin):
+    # inlines = [GenericMetaPropInline ]
+    pass
+
+class QBSpatialDimensionAdmin(admin.ModelAdmin):
     # inlines = [GenericMetaPropInline ]
     pass
     
 admin.site.register(QBDimension, QBDimensionAdmin)
 admin.site.register(QBCodedDimension, QBCodedDimensionAdmin)
+admin.site.register(QBSpatialDimension, QBSpatialDimensionAdmin)
+admin.site.register(QBMeasure, QBMeasureAdmin)
+admin.site.register(QBRealNumberMeasure, QBRealNumberMeasureAdmin)
+admin.site.register(QBCodedMeasure, QBCodedMeasureAdmin)
