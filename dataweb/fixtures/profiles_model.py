@@ -26,14 +26,16 @@ def load_rdf_mappings():
     """
     print "loading RDF_IO mappings"
     content_type = ContentType.objects.get(app_label="dataweb",model="profile")
-    object_type = ObjectType.objects.get_or_create(uri="prof:Profile", defaults = { "label" : "Interoperability Profile" })
+    (object_type,created) = ObjectType.objects.get_or_create(uri="prof:Profile", defaults = { "label" : "Interoperability Profile" })
     (pm,created) =   ObjectMapping.objects.get_or_create(name="Interoperability Profile RDF mapping", defaults =
         { "auto_push" : True , 
           "id_attr" : "uri",
           "target_uri_expr" : "uri",
-          "obj_type" : object_type,
+
           "content_type" : content_type
         })
+    pm.obj_type.add(object_type)
+    
     if not created :
         AttributeMapping.objects.filter(scope=pm).delete()
     am = AttributeMapping(scope=pm, attr="comment", predicate="rdfs:comment", is_resource=False).save()
