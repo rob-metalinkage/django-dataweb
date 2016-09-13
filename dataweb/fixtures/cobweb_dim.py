@@ -8,6 +8,7 @@ def load_base_namespaces():
     """
         load namespaces for the meta model
     """
+    Namespace.objects.get_or_create( uri='http://resources.opengeospatial.org/def/bp/cobweb/', defaults = { 'prefix' : 'cobweb' , 'notes': 'COBWEB project citizen science proof of concept' } )
     print "loading base namespaces"
     
 
