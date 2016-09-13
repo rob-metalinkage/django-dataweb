@@ -9,7 +9,7 @@ def load_base_namespaces():
         load namespaces for the meta model
     """
     
-    Namespace.objects.get_or_create( uri='http://resources.opengeospatial.org/def/ontology/prof/', defaults = { 'prof' : 'qb4st' , 'notes': 'Interoperability Profiles model' } )
+    Namespace.objects.get_or_create( uri='http://resources.opengeospatial.org/def/ontology/prof/', defaults = { 'prefix' : 'prof' , 'notes': 'Interoperability Profiles model' } )
  
     print "loading base namespaces"
     
