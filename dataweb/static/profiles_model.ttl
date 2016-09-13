@@ -1,0 +1,190 @@
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix sp: <http://spinrdf.org/sp#> .
+@prefix spin: <http://spinrdf.org/spin#> .
+@prefix spl: <http://spinrdf.org/spl#> .
+
+# content standards
+@prefix qb: <http://purl.org/linked-data/cube#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+
+# domain 
+@prefix qb4st: <http://resources.opengeospatial.org/def/ontology/qb4st/> .
+@prefix prof: <http://resources.opengeospatial.org/def/ontology/prof/> .
+
+# Classes
+
+prof:Profile a rdfs:Class;
+	rdfs:label "An interoperability profile, defining aspects of conformant datasets." ;
+	
+	# spin rule to trigger RDFS entailment - Profiles are an RDFS class, datasets maybe described as instances of such profiles
+	spin:rule [ 
+	     a sp:Construct ;
+	     rdfs:label "Makes each Profile a RDFS Class"@en;
+	     rdfs:comment "spin rule to trigger RDFS entailment - Profiles are an RDFS class, datasets maybe described as instances of such profiles"@en ;
+	     sp:text """
+		     PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+			 PREFIX prof: <http://resources.opengeospatial.org/def/ontology/prof/>
+		     CONSTRUCT {
+		    	?A a rdfs:ClassOf .
+				}
+			 WHERE {
+			    ?A a prof:Profile .
+			    }
+			""" ;
+	    ]  ;
+    	# spin rule to trigger RDFS entailment - Profiles are an RDFS class, datasets maybe described as instances of such profiles
+	spin:rule [ 
+	     a sp:Construct ;
+	     rdfs:label "Makes each profile a subclass of inherited class"@en;
+	     rdfs:comment "enforces subClass for inherited models"@en ;
+	     sp:text """
+		     PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+			 PREFIX prof: <http://resources.opengeospatial.org/def/ontology/prof/>
+		     CONSTRUCT {
+		    	?B rdfs:subClassOf ?A .
+				}
+			 WHERE {
+			    ?A a prof:Profile .
+			    ?B a prof:Profile .
+			    ?B prof:implements ?A .
+			    }
+			""" ;
+	    ]  ;
+	    
+ 	# rule to create a grandparent (implementsTransitive association - adds transitive semantics to the rdfs:subClass
+	spin:rule [ 
+	     	a sp:Construct ;
+	     rdfs:comment "rule to create a grandparent (implementsTransitive association - adds transitive semantics to rdfs:subClass"@en ;
+	     sp:text """
+		     PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+			 PREFIX prof: <http://resources.opengeospatial.org/def/ontology/prof/>
+		     CONSTRUCT {
+			    ?B prof:implementsTransitive ?A .
+			    ?A prof:implementedBy ?B .
+				}
+			 WHERE {
+			    ?A a prof:Profile .
+			    ?B a prof:Profile .
+			    ?B prof:implements+ ?A .
+			    }
+			 """ ;
+		    ]  ;
+	spin:rule [ 
+    	a sp:Construct ;
+       	rdfs:comment "Assert that child profile also contains dimension bindings from parent (handling overidden bindings)."@en ;
+	    sp:text """
+			PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+			PREFIX prof: <http://resources.opengeospatial.org/def/ontology/prof/>
+			CONSTRUCT {
+		    	?B prof:dimBinding ?dimA
+			}
+			WHERE {
+			    ?A a prof:Profile .
+			    ?B a prof:Profile .
+			    ?B rdfs:subClassOf ?A .
+			    ?A prof:dimBinding ?dimA .
+			    FILTER NOT EXISTS {
+			        ?B prof:dimBinding ?dimB .
+			        ?dimB prof:overrides ?dimA .
+			    }
+			} """ ; 
+	] ;
+	spin:rule [ 
+    	a sp:Construct ;
+       	rdfs:comment "Assert that child profile also contains measure bindings from parent (handling overidden bindings)."@en ;
+	    sp:text """
+			PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+			PREFIX prof: <http://resources.opengeospatial.org/def/ontology/prof/>
+			CONSTRUCT {
+		    	?B prof:measureBinding ?dimA
+			}
+			WHERE {
+			    ?A a prof:Profile .
+			    ?B a prof:Profile .
+			    ?B rdfs:subClassOf ?A .
+			    ?A prof:measureBinding ?dimA .
+			    FILTER NOT EXISTS {
+			        ?B prof:measureBinding ?dimB .
+			        ?dimB prof:overrides ?dimA .
+			    }
+			} """ ; 
+	] ;
+.
+
+prof:DimensionBinding a rdfs:Class;
+	rdfs:subClassOf qb:ComponentSpecification ;
+	rdfs:label "Dimension Binding"@en;
+	rdfs:comment "Specifies a profile must have the dimension, and allows attributes to narrow the scope of the referenced qb:DimensionProperty. Equivalent to a qb:ComponentSpecification, "@en;
+	spin:rule [ 
+    	a sp:Construct ;
+       	rdfs:comment "Identify where a dimension binding is overriding an inherited binding requirement - because of subPropertyOf relationships in the dimension"@en ;
+	    sp:text """
+			PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+			PREFIX prof: <http://resources.opengeospatial.org/def/ontology/prof/>
+			PREFIX qb: <http://purl.org/linked-data/cube#>
+			CONSTRUCT {
+		    	?dimB prof:overrides ?dimA
+			}
+			WHERE {
+			    ?dimA a prof:DimensionBinding .
+			    ?dimB a prof:DimensionBinding .
+			    ?dimA qb:dimension ?A .
+			    ?dimB qb:dimension ?B .
+			    ?B rdfs:subPropertyOf ?A .
+			} """ ; 
+	] ;
+.
+
+prof:MeasureBinding a rdfs:Class;
+	rdfs:subClassOf qb:ComponentSpecification ;
+	rdfs:label "Measure Binding"@en;
+	rdfs:comment "Specifies a profile must have the measure, and allows attributes to narrow the scope of the referenced qb:MeasureProperty"@en;
+	spin:rule [ 
+    	a sp:Construct ;
+       	rdfs:comment "Identify where a measure binding is overriding an inherited binding requirement - because of subPropertyOf relationships"@en ;
+	    sp:text """
+			PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+			PREFIX prof: <http://resources.opengeospatial.org/def/ontology/prof/>
+			PREFIX qb: <http://purl.org/linked-data/cube#>
+			CONSTRUCT {
+		    	?dimB prof:overrides ?dimA
+			}
+			WHERE {
+			    ?dimA a prof:MeasureBinding .
+			    ?dimB a prof:MeasureBinding .
+			    ?dimA qb:measure ?A .
+			    ?dimB qb:measure ?B .
+			    ?B rdfs:subPropertyOf ?A .
+			} """ ; 
+	] ;
+	.
+
+
+# Properties
+prof:implements a rdfs:Property;
+	rdfs:label "inherits constraints from the related object";
+	# meta:rangeIncludes prof:Profile
+	# meta:domainIncludes prof:Profile
+	rdfs:comment "Could be a subProperty of rfds:subClassOf - an inheritance mechanism that triggers overrides of ranges etc"@en ;
+.
+
+prof:implementsTransitive a rdfs:Property;
+	rdfs:label "indirect inheritance . ";
+	# meta:rangeIncludes prof:Profile
+	# meta:domainIncludes prof:Profile
+	rdfs:comment "Convenience handled by entailment, listing all sources of inherited properties"@en ;
+.
+
+
+prof:dimBinding a rdfs:Property;
+	rdfs:subPropertyOf qb:component ;
+	rdfs:range prof:DimemsionBinding;
+	
+.
+
+

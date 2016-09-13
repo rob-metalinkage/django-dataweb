@@ -23,18 +23,18 @@ def flush_all(req) :
 def loadbase(req) :
     if req.GET.get('pdb') :
         import pdb; pdb.set_trace()
-    cfgname='cobweb_dim'
-    cm = import_module("".join(('dataweb.fixtures.',cfgname)), 'gazetteer.fixtures')
-    cm.load_base_namespaces()
-    cm.load_base_qb()
-    cm.load_rdf_mappings()
+    for cfgname in ['qb4st_dim','profiles_model'] :
+        cm = import_module("".join(('dataweb.fixtures.',cfgname)), 'dataweb.fixtures')
+        cm.load_base_namespaces()
+        cm.load_base_qb()
+        cm.load_rdf_mappings()
     return HttpResponse("loaded base components")  
 
 def loadsamples(req) :
     if req.GET.get('pdb') :
         import pdb; pdb.set_trace()
     cfgname='cobweb_dim'
-    cm = import_module("".join(('dataweb.fixtures.',cfgname)), 'gazetteer.fixtures')
+    cm = import_module("".join(('dataweb.fixtures.',cfgname)), 'dataweb.fixtures')
     cm.load_sample_namespaces()
     cm.load_sample_qb()
     cm.load_sample_profiles()
