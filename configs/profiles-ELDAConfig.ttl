@@ -69,7 +69,7 @@ papi:api a api:API;
 
 papi:profileShallowView a api:Viewer;
     api:name "Profile and qb components";
-	api:property rdfs:label, rdfs:comment, (prof:implements rdfs:label), ( rdfs:subClassOf rdfs:label),
+	api:property rdf:type, rdfs:label, rdfs:comment, (prof:implements rdfs:label), ( rdfs:subClassOf rdfs:label),
 		(prof:dimBinding rdfs:label),
 		(prof:measureBinding rdfs:label);
      .

@@ -122,7 +122,7 @@ prof:DimensionBinding a rdfs:Class;
 	rdfs:comment "Specifies a profile must have the dimension, and allows attributes to narrow the scope of the referenced qb:DimensionProperty. Equivalent to a qb:ComponentSpecification, "@en;
 	spin:rule [ 
     	a sp:Construct ;
-       	rdfs:comment "Identify where a dimension binding is overriding an inherited binding requirement - because of subPropertyOf relationships in the dimension"@en ;
+       	rdfs:comment "Identify where a measure binding is overriding an inherited binding requirement - because it binds to a subclass of a required component"@en ;
 	    sp:text """
 			PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 			PREFIX prof: <http://resources.opengeospatial.org/def/ontology/prof/>
@@ -132,10 +132,10 @@ prof:DimensionBinding a rdfs:Class;
 			}
 			WHERE {
 			    ?dimA a prof:DimensionBinding .
-			    ?dimB a prof:DimensionBinding .
+			    ?dimB a prof:DimensionBinding FILTER ( ?dimA != ?dimB ) .
 			    ?dimA qb:dimension ?A .
 			    ?dimB qb:dimension ?B .
-			    ?B rdfs:subPropertyOf ?A .
+			    ?B rdfs:subClassOf+ ?A FILTER ( ?A != ?B ) .
 			} """ ; 
 	] ;
 .
@@ -146,7 +146,7 @@ prof:MeasureBinding a rdfs:Class;
 	rdfs:comment "Specifies a profile must have the measure, and allows attributes to narrow the scope of the referenced qb:MeasureProperty"@en;
 	spin:rule [ 
     	a sp:Construct ;
-       	rdfs:comment "Identify where a measure binding is overriding an inherited binding requirement - because of subPropertyOf relationships"@en ;
+       	rdfs:comment "Identify where a measure binding is overriding an inherited binding requirement - because it binds to a subclass of a required component"@en ;
 	    sp:text """
 			PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 			PREFIX prof: <http://resources.opengeospatial.org/def/ontology/prof/>
@@ -159,7 +159,7 @@ prof:MeasureBinding a rdfs:Class;
 			    ?dimB a prof:MeasureBinding .
 			    ?dimA qb:measure ?A .
 			    ?dimB qb:measure ?B .
-			    ?B rdfs:subPropertyOf ?A .
+			    ?B rdfs:subClassOf ?A .
 			} """ ; 
 	] ;
 	.
