@@ -18,7 +18,7 @@ def load_sample_qb():
     """
     print "loading sample QB components"
     
-    (gbif_sch,created) = Scheme.objects.get_or_create(uri="proxy:gbif/taxon", defaults = { 'pref_label' :"GBIF Taxon Scheme" })
+    (gbif_sch,created) = Scheme.objects.get_or_create(uri="http://resources.opengeospatial.org/def/proxy/gbif/taxon", defaults = { 'pref_label' :"GBIF Taxon Scheme" })
     (cobweb_user_sch,created) = Scheme.objects.get_or_create(uri="http://resources.opengeospatial.org/def/voc/examples/cobwebusers",
         defaults = { 'pref_label' :"COBWEB Users" })
 
@@ -43,7 +43,7 @@ def load_sample_qb():
             { 'label' : "Species Specific Dimension using GBIF taxon keys",
                'is_class': False,
                'sub_type_of': d2,
-               'concept' : "proxy:gbif/taxontypes/Species",
+               'concept' : "http://resources.opengeospatial.org/def/proxy/gbif/taxontypes/Species",
                "helptext" : "A dimension using only species level codes from the GBIF taxon hierarchy." 
             })       
          

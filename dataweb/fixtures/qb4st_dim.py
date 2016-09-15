@@ -73,6 +73,6 @@ def commondim(object_type,content_type_label, title):
     am = AttributeMapping(scope=pm, attr="helptext", predicate="rdfs:comment", is_resource=False).save()
     am = AttributeMapping(scope=pm, attr="range", predicate="rdfs:range", is_resource=True).save()
     am = AttributeMapping(scope=pm, attr="concept", predicate="qb:concept", is_resource=True).save()
-    am = AttributeMapping(scope=pm, attr="sub_type_of.uri", predicate="rdfs:subPropertyOf", is_resource=True).save()
+    am = AttributeMapping(scope=pm, attr="sub_type_of.uri", predicate="rdfs:subClassOf", is_resource=True).save()
     return pm   
 

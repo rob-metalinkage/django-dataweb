@@ -1,0 +1,134 @@
+##############################################################
+#
+#
+# This is an elda configuration for accessing Interoperability profiles and RDF-Datacube components .
+#
+# Author: Rob Atkinson
+#
+# Re-use permitted according to Creative Commons Attribution 3.0 Australia (CC BY 3.0)
+# see <http://creativecommons.org/licenses/by/3.0/au/>
+#
+# Contact: Robert A Atkinson
+#          Metalinkage
+#          Australia
+#          rob "at" metalinkage.com.au
+#
+# The configuration should only need the SPARQL endpoint customised provided that content is correctly loaded 
+# each UML package defines an ontology, which is loaded into a graph using the ontology URI as the name 
+#
+################################################################ Common prefixes - don't change these.
+@prefix api:     <http://purl.org/linked-data/api/vocab#> .
+@prefix dc:      <http://purl.org/dc/elements/1.1/> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix elda:    <http://www.epimorphics.com/vocabularies/lda#> .
+@prefix foaf:    <http://xmlns.com/foaf/0.1/> .
+@prefix owl:     <http://def.seegrid.csiro.au/isotc211//owl#> .
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix skos:    <http://www.w3.org/2004/02/skos/core#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+
+@prefix prof: <http://resources.opengeospatial.org/def/ontology/prof/> .
+@prefix qb: <http://purl.org/linked-data/cube#> .
+@prefix papi:    <http://metalinkage.com.au/elda/papi/> .
+
+## instance specific prefixes - extra namespaces that appear in this vocabulary - adjust to taste
+
+papi:api a api:API;
+    api:maxPageSize "50";
+    api:defaultPageSize "10";
+    api:defaultFormatter [
+        a api:XsltFormatter;
+        api:name "html";
+        api:stylesheet "lda-assets/resources/siss-default/transform/ashtml-sissvoc.xsl";
+        api:mimeType "text/html";
+        elda:metadataOptions "bindings,versions,execution,formats";
+    ];
+
+    api:variable [api:name "webapp"; api:value "/dna"];
+    api:variable
+        [api:name "SISSDefaultResourceDirBase"; api:value "{webapp}/lda-assets/resources/siss-default/"],
+        [api:name "myResourceDirBase"; api:value "{webapp}/lda-assets/resources/dna/"],
+        [api:name "resourceEndPoint"; api:value "{webapp}/skos/resource?uri="],
+        [api:name "_resourceRoot"; api:value "{webapp}/"],
+        [api:name "serviceTitle"; api:value "SWE4CS semantic interoperability demonstrator"],
+        [api:name "serviceAuthor"; api:value "Rob Atkinson"],
+        [api:name "serviceAuthorEmail"; api:value "Rob@metalinkage.com.au"],
+        [api:name "serviceHomePage"; api:value "https://portal.opengeospatial.org/wiki/GEOSEMdwg/InteroperabilityProfilesDemonstrator"];
+    api:endpoint
+       papi:profileDeep ;
+    api:defaultViewer api:describeViewer;
+    elda:enableETags true;
+    rdfs:label "Interoperability Profiles Proof of Concept"@en;
+
+     api:sparqlEndpoint <http://localhost:8080/rdf4j-server/repositories/profiles-test>
+    .
+<http://localhost:8080/rdf4j-server/repositories/profiles-test> elda:supportsNestedSelect true .
+	
+#VIEWERS
+
+papi:profileShallowView a api:Viewer;
+    api:name "Profile and qb components";
+	api:property rdfs:label, rdfs:comment, (prof:implements rdfs:label), ( rdfs:subClassOf rdfs:label),
+		(prof:dimBinding rdfs:label),
+		(prof:measureBinding rdfs:label);
+     .
+     
+papi:profileStructureView a api:Viewer;
+    api:name "Profile and qb component details";
+    api:include papi:profileShallowView;
+    api:properties "dimBinding.*, dimBinding.dimension.*" ;
+
+     .
+     
+papi:profileDeepView a api:Viewer;
+    api:name "Profile and qb components with inherited properties";
+    api:include papi:profileStructureView;
+    api:property (prof:implementsTransitive rdfs:label) , 
+    	(prof:implementsTransitive prof:dimBinding rdfs:label),
+    	(prof:implementsTransitive prof:dimBinding qb:dimension rdfs:subClassOf rdfs:label);
+     .
+
+
+#ENDPOINTS
+
+## 0. This is the basic "tell me what you know about the resource identified by this URI" request.
+papi:profileDeep a api:ItemEndpoint;
+    rdfs:comment "Describe this resource";
+    api:uriTemplate "/profile?uri={URI}";
+    api:itemTemplate "{URI}";
+    api:exampleRequestPath "/profile?uri=http://resources.opengeospatial.org/def/bp/cobweb/Species_GBIF";
+    api:defaultViewer papi:profileDeepView;
+    api:viewer papi:profileStructureView, papi:profileDeepView, papi:profileShallowView , api:labelledDescribeViewer;
+    .
+
+#
+# VOCABULARY
+#
+# The vocabulary declarations say which properties can be used in queries
+# and by what short name those properties are known. If property P with short
+# name Q has range type T, then a query parameters Q=V is translated to
+# a WHERE clause fragment ?item P V' where V' is a literal which is V
+# with type T. This is especially important for numbers and booleans.
+#
+
+## RDF
+rdf:type
+    api:label "type";
+    rdfs:range rdfs:Class .
+
+## RDFS
+rdfs:label
+    api:label "label";
+    api:structured "true"^^xsd:boolean;
+    a rdf:Property .
+
+rdfs:comment
+    api:label "comment";
+    api:structured "true"^^xsd:boolean;
+    a rdf:Property .
+
+prof:dimBinding api:label "dimBinding" .
+
+qb:dimension api:label "dimension" .
+#qb:measure api:label "Measure" .
