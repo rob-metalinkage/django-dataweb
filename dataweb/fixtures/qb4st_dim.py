@@ -44,8 +44,15 @@ def load_rdf_mappings():
     pm = commondim(object_type, "QBDimension", "QB Dimension Common Elements" )
     # specific mapping
     # am = AttributeMapping(scope=pm, attr="collection", predicate="prof:collection", is_resource=True).save()
-
-    (object_type,created) = ObjectType.objects.get_or_create(uri="qb:CodedDimensionProperty", defaults = { "label" : "RDF Datacube Coded DimensionProperty" })
+    am = AttributeMapping(scope=pm, attr="comment", predicate="rdfs:comment", is_resource=False).save()
+    am = AttributeMapping(scope=pm, attr="label", predicate="rdfs:label", is_resource=False).save()
+    am = AttributeMapping(scope=pm, attr="comment", predicate="rdfs:comment", is_resource=False).save()
+    am = AttributeMapping(scope=pm, attr="helptext", predicate="rdfs:comment", is_resource=False).save()
+    am = AttributeMapping(scope=pm, attr="range", predicate="rdfs:range", is_resource=True).save()
+    am = AttributeMapping(scope=pm, attr="concept", predicate="qb:concept", is_resource=True).save()
+    am = AttributeMapping(scope=pm, attr="sub_type_of.uri", predicate="prof:implements", is_resource=True).save()
+    
+    (object_type,created) = ObjectType.objects.get_or_create(uri="qb:CodedProperty", defaults = { "label" : "RDF Datacube Coded Property" })
     pm = commondim(object_type, "QBCodedDimension", "QB Coded Dimension Specific Elements" )
     am = AttributeMapping(scope=pm, attr="codelist.uri", predicate="qb:codelist", is_resource=True).save()
 
@@ -67,12 +74,6 @@ def commondim(object_type,content_type_label, title):
     
     pm.obj_type.add(object_type)
         
-    am = AttributeMapping(scope=pm, attr="comment", predicate="rdfs:comment", is_resource=False).save()
-    am = AttributeMapping(scope=pm, attr="label", predicate="rdfs:label", is_resource=False).save()
-    am = AttributeMapping(scope=pm, attr="comment", predicate="rdfs:comment", is_resource=False).save()
-    am = AttributeMapping(scope=pm, attr="helptext", predicate="rdfs:comment", is_resource=False).save()
-    am = AttributeMapping(scope=pm, attr="range", predicate="rdfs:range", is_resource=True).save()
-    am = AttributeMapping(scope=pm, attr="concept", predicate="qb:concept", is_resource=True).save()
-    am = AttributeMapping(scope=pm, attr="sub_type_of.uri", predicate="rdfs:subClassOf", is_resource=True).save()
+
     return pm   
 
