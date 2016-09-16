@@ -1,0 +1,83 @@
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix sp: <http://spinrdf.org/sp#> .
+@prefix spin: <http://spinrdf.org/spin#> .
+@prefix spl: <http://spinrdf.org/spl#> .
+
+# content standards
+@prefix qb: <http://purl.org/linked-data/cube#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+
+# domain 
+@prefix qb4st: <http://resources.opengeospatial.org/def/ontology/qb4st/> .
+@prefix prof: <http://resources.opengeospatial.org/def/ontology/prof/> .
+
+# Classes
+
+qb:ComponentProperty
+	
+	spin:rule [ 
+	     a sp:Construct ;
+	     rdfs:label "Makes each profile a subclass of inherited class"@en;
+	     rdfs:comment "enforces subClass for inherited models"@en ;
+	     sp:text """
+		     PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+			 PREFIX prof: <http://resources.opengeospatial.org/def/ontology/prof/>
+		        CONSTRUCT {
+		    	?B rdfs:subClassOf ?A .
+				}
+			 WHERE {
+			    ?A a qb:ComponentProperty  .
+			    ?B a qb:ComponentProperty .			    
+			    ?B prof:implements ?A  .
+			    }
+
+			    }
+			""" ;
+	    ]  ;
+	    
+ 	# rule to create a grandparent (implementsTransitive association - adds transitive semantics to the rdfs:subClass
+	spin:rule [ 
+	     	a sp:Construct ;
+	     rdfs:comment "rule to create a grandparent (implementsTransitive association - adds transitive semantics to rdfs:subClass"@en ;
+	     sp:text """
+		     PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+			 PREFIX prof: <http://resources.opengeospatial.org/def/ontology/prof/>
+			CONSTRUCT {
+			    ?B prof:implementsTransitive ?A .
+			    ?A prof:implementedBy ?B .
+				}
+			 WHERE {
+			    ?A a qb:ComponentProperty  .
+			    ?B a qb:ComponentProperty .	
+			    ?B prof:implements ?A .
+			    }
+
+			 """ ;
+		    ]  ;
+	spin:rule [ 
+    	a sp:Construct ;
+       	rdfs:comment "Inherit properties from implemented classes"@en ;
+	    sp:text """
+			PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+			PREFIX prof: <http://resources.opengeospatial.org/def/ontology/prof/>
+			CONSTRUCT {
+			 ?A ?prop ?p .
+
+				}
+			 WHERE {
+			    ?A a qb:ComponentProperty  .
+			    ?B a qb:ComponentProperty .	
+			    ?B prof:implements ?A .
+			    ?B ?prop ?p
+			    MINUS { ?B prof:implements ?p } 
+			    MINUS { ?A ?prop ?xxx }
+			    }
+			} """ ; 
+	] ;
+	
+.
