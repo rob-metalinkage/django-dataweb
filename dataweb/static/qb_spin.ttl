@@ -27,6 +27,7 @@ qb:ComponentProperty
 	     sp:text """
 		     PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 			 PREFIX prof: <http://resources.opengeospatial.org/def/ontology/prof/>
+			 PREFIX qb: <http://purl.org/linked-data/cube#>
 		        CONSTRUCT {
 		    	?B rdfs:subClassOf ?A .
 				}
@@ -36,7 +37,6 @@ qb:ComponentProperty
 			    ?B prof:implements ?A  .
 			    }
 
-			    }
 			""" ;
 	    ]  ;
 	    
@@ -47,6 +47,7 @@ qb:ComponentProperty
 	     sp:text """
 		     PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 			 PREFIX prof: <http://resources.opengeospatial.org/def/ontology/prof/>
+			 PREFIX qb: <http://purl.org/linked-data/cube#>
 			CONSTRUCT {
 			    ?B prof:implementsTransitive ?A .
 			    ?A prof:implementedBy ?B .
@@ -65,19 +66,19 @@ qb:ComponentProperty
 	    sp:text """
 			PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 			PREFIX prof: <http://resources.opengeospatial.org/def/ontology/prof/>
+			PREFIX qb: <http://purl.org/linked-data/cube#>
 			CONSTRUCT {
-			 ?A ?prop ?p .
+			 ?B ?prop ?p .
 
 				}
 			 WHERE {
 			    ?A a qb:ComponentProperty  .
 			    ?B a qb:ComponentProperty .	
 			    ?B prof:implements ?A .
-			    ?B ?prop ?p
-			    MINUS { ?B prof:implements ?p } 
-			    MINUS { ?A ?prop ?xxx }
+			    ?A ?prop ?p FILTER ( NOT EXISTS { ?B ?prop ?p} &&  ?prop IN ( rdfs:range, qb:concept, qb:codelist ) )
+			    
 			    }
-			} """ ; 
+		""" ; 
 	] ;
 	
 .
