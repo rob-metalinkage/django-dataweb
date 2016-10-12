@@ -22,6 +22,21 @@ skos:Concept a owl:Class;
 	     sp:text """
 		     PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 		     PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+		     CONSTRUCT {		    
+		    	?B skos:narrower ?this .
+				}
+			 WHERE {
+					?this skos:broader ?B .
+			    }
+			""" ;
+	    ]  ;
+	spin:rule [ 
+	     a sp:Construct ;
+	     rdfs:label "makes broaderTransitive"@en;
+	     rdfs:comment "spin rule to trigger RDFS entailment - Profiles are an RDFS class, datasets maybe described as instances of such profiles"@en ;
+	     sp:text """
+		     PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+		     PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
 		     CONSTRUCT {
 		    	?A skos:broaderTransitive ?C  .
 	    	

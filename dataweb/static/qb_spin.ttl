@@ -15,11 +15,60 @@
 # domain 
 @prefix qb4st: <http://resources.opengeospatial.org/def/ontology/qb4st/> .
 @prefix prof: <http://resources.opengeospatial.org/def/ontology/prof/> .
-
+@prefix qbreg: <http://resources.opengeospatial.org/def/voc/qbcomponents> .
 # Classes
 
-qb:ComponentProperty
+qb4st:qbspin a owl:Ontology;
+	rdfs:label "Entailment rules to support convenience APIs over deep inheritance trees of QB component specialisations"@en;
+	rdfs:comment "Adds SPIN rules to QB components to create closures over inherited properties and alternative views such as SKOS and VoiD that allow binding of APIs to definitions"@en;
+	dcterms:creator "Rob Atkinson" ;
+.
 	
+
+qb:ComponentProperty
+	spin:rule [ 
+	     a sp:Construct ;
+	     rdfs:label "Generates a VoiD dataset for the namespace, so that inherited API bindings can be exposed"@en;
+	     rdfs:comment "enforces subClass for inherited models"@en ;
+	     sp:text """
+		     PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+			 PREFIX prof: <http://resources.opengeospatial.org/def/ontology/prof/>
+			 PREFIX qb: <http://purl.org/linked-data/cube#>
+			 PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+			 PREFIX qbreg: <http://resources.opengeospatial.org/def/voc/qbcomponents> 
+		        CONSTRUCT {
+					?this skos:inScheme qbreg: .
+					?this a skos:Concept .
+				}
+			 WHERE {
+			    ?this a qb:ComponentProperty
+			}
+			""" ;
+	    ]  ;
+	    
+	spin:rule [ 
+	     a sp:Construct ;
+	     rdfs:label "Generates a VoiD dataset for the namespace, so that inherited API bindings can be exposed"@en;
+	     rdfs:comment "enforces subClass for inherited models"@en ;
+	     sp:text """
+		     PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+			 PREFIX prof: <http://resources.opengeospatial.org/def/ontology/prof/>
+			 PREFIX qb: <http://purl.org/linked-data/cube#>
+			 PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+		        CONSTRUCT {
+					?base a prof:ComponentRegister .
+					?base rdfs:label ?basestr .
+					?base rdfs:comment "Sub register of QB components" .
+					?this skos:inScheme ?base .
+				}
+			 WHERE {
+			    ?this a qb:ComponentProperty
+				BIND ( replace( str(?this), "(#|/)[^#/]*$", "" ) as ?basestr  )
+ 				BIND ( IRI(?basestr) as ?base ) 
+			}
+			""" ;
+	    ]  ;
+	    	
 	spin:rule [ 
 	     a sp:Construct ;
 	     rdfs:label "Makes each profile a subclass of inherited class"@en;
@@ -28,8 +77,11 @@ qb:ComponentProperty
 		     PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 			 PREFIX prof: <http://resources.opengeospatial.org/def/ontology/prof/>
 			 PREFIX qb: <http://purl.org/linked-data/cube#>
+			 PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
 		        CONSTRUCT {
 		    	?B rdfs:subClassOf ?A .
+		    	?B skos:broader ?A .
+		    	?A skos:narrower ?B .
 				}
 			 WHERE {
 			    ?A a qb:ComponentProperty  .

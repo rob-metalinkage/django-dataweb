@@ -30,6 +30,7 @@
 
 @prefix prof: <http://resources.opengeospatial.org/def/ontology/prof/> .
 @prefix qb: <http://purl.org/linked-data/cube#> .
+@prefix qb4st: <http://resources.opengeospatial.org/def/ontology/qb4st/> .
 @prefix papi:    <http://metalinkage.com.au/elda/papi/> .
 
 ## instance specific prefixes - extra namespaces that appear in this vocabulary - adjust to taste
@@ -56,7 +57,7 @@ papi:api a api:API;
         [api:name "serviceAuthorEmail"; api:value "Rob@metalinkage.com.au"],
         [api:name "serviceHomePage"; api:value "https://portal.opengeospatial.org/wiki/GEOSEMdwg/InteroperabilityProfilesDemonstrator"];
     api:endpoint
-       papi:profileDeep ;
+       papi:profileDeep , papi:qbcomponentDeep;
     api:defaultViewer api:describeViewer;
     elda:enableETags true;
     rdfs:label "Interoperability Profiles Proof of Concept"@en;
@@ -89,12 +90,27 @@ papi:profileDeepView a api:Viewer;
     	(prof:implementsTransitive prof:dimBinding qb:dimension rdfs:subClassOf rdfs:label);
      .
 
-
+papi:qbShallowView a api:Viewer;
+    api:name "qb components";
+	api:property rdf:type, rdfs:label, rdfs:comment, ( rdfs:subClassOf rdfs:label), qb:codelist, qb:concept, rdfs:range,
+		qb4st:uom, qb4st:crs 
+     .
+	 
+papi:qbcomponentDeepView a api:Viewer;
+    api:name "QB Component";
+    api:include papi:qbShallowView;
+    api:property (prof:implementsTransitive rdfs:label) , 
+    	(prof:implementsTransitive qb:concept rdfs:label),
+    	(prof:implementsTransitive qb:codelist rdfs:label),
+		(prof:implementsTransitive rdfs:range rdfs:label)
+		;
+     .
+	 
 #ENDPOINTS
 
-## 0. This is the basic "tell me what you know about the resource identified by this URI" request.
+
 papi:profileDeep a api:ItemEndpoint;
-    rdfs:comment "Describe this resource";
+    rdfs:comment "Profile, with inherited properties";
     api:uriTemplate "/profile?uri={URI}";
     api:itemTemplate "{URI}";
     api:exampleRequestPath "/profile?uri=http://resources.opengeospatial.org/def/bp/cobweb/Species_GBIF";
@@ -102,6 +118,16 @@ papi:profileDeep a api:ItemEndpoint;
     api:viewer papi:profileStructureView, papi:profileDeepView, papi:profileShallowView , api:labelledDescribeViewer;
     .
 
+papi:qbcomponentDeep a api:ItemEndpoint;
+    rdfs:comment "RDF Datacube component (dimension or measure) with inherited properties";
+    api:uriTemplate "/qbcomponent?uri={URI}";
+    api:itemTemplate "{URI}";
+    api:exampleRequestPath "/qbcomponent?uri=http://resources.opengeospatial.org/def/bp/cobweb/Species_GBIF";
+    api:defaultViewer papi:qbcomponentDeepView;
+    #api:viewer api:labelledDescribeViewer;
+    .
+
+	
 #
 # VOCABULARY
 #

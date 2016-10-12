@@ -11,12 +11,18 @@
 @prefix qb: <http://purl.org/linked-data/cube#> .
 @prefix dcterms: <http://purl.org/dc/terms/> .
 
+@prefix lid: <http://id.sirf.net/def/schema/lid/> .
 
 # domain 
 @prefix qb4st: <http://resources.opengeospatial.org/def/ontology/qb4st/> .
 @prefix prof: <http://resources.opengeospatial.org/def/ontology/prof/> .
 
 # Classes
+
+<http://resources.opengeospatial.org/def/ontology/prof> a lid:lidset;
+	rdfs:label "Root register for all profiles in this domain"@en;
+.
+
 
 prof:Profile a rdfs:Class;
 	rdfs:label "An interoperability profile, defining aspects of conformant datasets." ;
@@ -30,13 +36,36 @@ prof:Profile a rdfs:Class;
 		     PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 			 PREFIX prof: <http://resources.opengeospatial.org/def/ontology/prof/>
 		     CONSTRUCT {
-		    	?A a rdfs:ClassOf .
+		    	?A a rdfs:Class .
 				}
 			 WHERE {
 			    ?A a prof:Profile .
 			    }
 			""" ;
 	    ]  ;
+	
+		spin:rule [ 
+	     a sp:Construct ;
+	     rdfs:label "Generates a VoiD dataset for the namespace, so that inherited API bindings can be exposed"@en;
+	     rdfs:comment "enforces subClass for inherited models"@en ;
+	     sp:text """
+		     PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+			 PREFIX prof: <http://resources.opengeospatial.org/def/ontology/prof/>
+			 PREFIX qb: <http://purl.org/linked-data/cube#>
+			 PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+		        CONSTRUCT {
+					?base a prof:ProfileRegister  .
+					?base rdfs:label ?basestr .
+					?base rdfs:comment "Profile register for the subdomain" .
+				}
+			 WHERE {
+			    ?this a prof:Profile
+				BIND ( replace( str(?this), "(#|/)[^#/]*$", "" ) as ?basestr  )
+ 				BIND ( IRI(?basestr) as ?base ) 
+			}
+			""" ;
+	    ]  ;
+	    
     	# spin rule to trigger RDFS entailment - Profiles are an RDFS class, datasets maybe described as instances of such profiles
 	spin:rule [ 
 	     a sp:Construct ;

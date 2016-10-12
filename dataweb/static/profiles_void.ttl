@@ -1,0 +1,79 @@
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix sp: <http://spinrdf.org/sp#> .
+@prefix spin: <http://spinrdf.org/spin#> .
+@prefix spl: <http://spinrdf.org/spl#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#>.
+
+# content standards
+@prefix qb: <http://purl.org/linked-data/cube#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+
+@prefix lid: <http://id.sirf.net/def/schema/lid/> .
+
+@prefix void: <http://rdfs.org/ns/void#> .
+
+# domain 
+@prefix qb4st: <http://resources.opengeospatial.org/def/ontology/qb4st/> .
+@prefix prof: <http://resources.opengeospatial.org/def/ontology/prof/> .
+
+# Makes the set of Profiles and QB components into VoiD datasets and binds the API to them - in conjunction with the basic lid_alternates_spin rules for all datasets.
+  
+prof:ComponentRegister rdfs:subClassOf lid:lidset, skos:ConceptScheme;
+   rdfs:label "The register of instances of QB Component sub types"@en ;
+   rdfs:comment "Declaring the set of registered sub-types of a QB component as subclass of void:Dataset allows the attachment of metadata about the state of the register, and binds to relevant convenience APIs to access deep traversals of the inherited properties of such definitions. "@en ;
+   rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty void:feature ;
+        owl:someValuesFrom prof:QbComponentInheritedView ;
+     ]  ;
+     . 
+
+prof:ProfileRegister rdfs:subClassOf lid:lidset ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty void:feature ;
+        owl:someValuesFrom prof:ProfileInheritedView ;
+     ]  ;
+	rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty void:feature ;
+        owl:someValuesFrom prof:ProfileMinimalView ;
+     ]  ;
+     .
+
+
+	 
+prof:ProfileInheritedView a lid:LDAViewer ;
+    rdfs:label "Profile encapsulated view";
+    rdfs:comment "Self contained ontology view of profile with all inherited constraints";
+    lid:viewName    "profile" ;
+#    rdfs:seeAlso <http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#>;
+    .
+
+	 
+prof:ProfileMinimalView a lid:LDAViewer ;
+    rdfs:label "Profile minimal view";
+    rdfs:comment "The minimal view of a profile, with only inherited references";
+    lid:viewName    "profile_raw" ;
+#    rdfs:seeAlso <http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#>;
+    .
+
+	 
+prof:ProfileOWLlView a lid:LDAViewer ;
+    rdfs:label "Profile minimal OWL view";
+    rdfs:comment "OWL view of profile, with transitive imports";
+    lid:viewName    "profile_owl" ;
+#    rdfs:seeAlso <http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#>;
+    .
+	
+prof:QbComponentInheritedView  a lid:LDAViewer ;
+    rdfs:label "RDF Datacube component encapsulated view";
+    rdfs:comment "Self contained ontology view of a QB component (dimension or measure) with all inherited constraints";
+    lid:viewName    "qb" ;
+#    rdfs:seeAlso <http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#>;
+    .
