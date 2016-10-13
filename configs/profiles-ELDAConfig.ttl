@@ -52,12 +52,17 @@ papi:api a api:API;
         [api:name "myResourceDirBase"; api:value "{webapp}/lda-assets/resources/dna/"],
         [api:name "resourceEndPoint"; api:value "{webapp}/skos/resource?uri="],
         [api:name "_resourceRoot"; api:value "{webapp}/"],
-        [api:name "serviceTitle"; api:value "SWE4CS semantic interoperability demonstrator"],
+        [api:name "serviceTitle"; api:value "Interoperability Profiles Register"],
         [api:name "serviceAuthor"; api:value "Rob Atkinson"],
         [api:name "serviceAuthorEmail"; api:value "Rob@metalinkage.com.au"],
         [api:name "serviceHomePage"; api:value "https://portal.opengeospatial.org/wiki/GEOSEMdwg/InteroperabilityProfilesDemonstrator"];
+               #
+                # set up default searches for this - in XSL form
+                #
+           api:variable [api:name "searchTargetLabel"; api:value "Find Profile"];
+           api:variable [api:name "searchTarget"; api:value "profile/find"];
     api:endpoint
-       papi:profileDeep , papi:qbcomponentDeep;
+       papi:profileDeep , papi:qbcomponentDeep ,papi:findQB , papi:findQBexact  ,papi:findProfileExact ,papi:findProfile;
     api:defaultViewer api:describeViewer;
     elda:enableETags true;
     rdfs:label "Interoperability Profiles Proof of Concept"@en;
@@ -122,12 +127,71 @@ papi:qbcomponentDeep a api:ItemEndpoint;
     rdfs:comment "RDF Datacube component (dimension or measure) with inherited properties";
     api:uriTemplate "/qbcomponent?uri={URI}";
     api:itemTemplate "{URI}";
+           api:variable [api:name "searchTargetLabel"; api:value "Find QB Component"];
+           api:variable [api:name "searchTarget"; api:value "/qbcomponent/find"];
     api:exampleRequestPath "/qbcomponent?uri=http://resources.opengeospatial.org/def/bp/cobweb/Species_GBIF";
     api:defaultViewer papi:qbcomponentDeepView;
     #api:viewer api:labelledDescribeViewer;
     .
 
+papi:findProfile  a api:ListEndpoint;
+    rdfs:label "Interoperability Profile Register search";
+        rdfs:comment "Find Profile where any label property contains this text, case-insensitive";
+
+        api:variable        [api:name "title"; api:value "Search Results"] ;
+        api:uriTemplate "/profile/find?labelcontains={text}";
+        api:exampleRequestPath "/profile/find?labelcontains=GBIF";
+        api:selector [
+            api:where "SELECT DISTINCT ?item WHERE { ?item a prof:Profile . ?item ?label ?l . FILTER ( ?label = rdfs:label || ?label = rdfs:comment ) FILTER regex( str(?l), ?text, 'i' ) }"
+        ];
+        api:defaultViewer papi:basicNetworkViewer;
+        .
+
+papi:findProfileExact  a api:ListEndpoint;
+    rdfs:label "Interoperability Profile Register search";
+        rdfs:comment "Find Profile where any label property matches text";
+
+        api:variable        [api:name "title"; api:value "Search Results"] ;
+        api:uriTemplate "/profile/find?anylabel={text}";
+        api:exampleRequestPath "/profile/find?anylabel=GBIF+compatible+species+occurence";
+        api:selector [
+            api:where "SELECT DISTINCT ?item WHERE { ?item a prof:Profile . ?item ?label ?l . FILTER ( ?label = rdfs:label || ?label = rdfs:comment ) FILTER ( ?l = ?text )}"
+        ];
+        api:defaultViewer papi:basicNetworkViewer;
+        .
+
+papi:findQBexact  a api:ListEndpoint;
+    rdfs:label "QB Component Register search";
+        rdfs:comment "Finf QB component where any label property contains this text, case-insensitive";
+        api:variable        [api:name "title"; api:value "Search Results"] ;
+           api:variable [api:name "searchTargetLabel"; api:value "Find QB Component"];
+           api:variable [api:name "searchTarget"; api:value "/qbcomponent/find"];
+        api:uriTemplate "/qbcomponent/find?anylabel={text}";
+        api:exampleRequestPath "/qbcomponent/find?anylabel=spatial";
+        api:selector [
+            api:where "SELECT DISTINCT ?item WHERE { ?item a qb:ComponentProperty . ?item ?label ?l . FILTER ( ?label = rdfs:label || ?label = rdfs:comment ) FILTER ( ?l = ?text ) }"
+        ];
+        api:defaultViewer papi:basicNetworkViewer;
+        .
+
+papi:findQB  a api:ListEndpoint;
+    rdfs:label "QB Component Register search";
+        rdfs:comment "Finf QB component where any label property contains this text, case-insensitive";
+        api:variable        [api:name "title"; api:value "Search Results"] ;
+           api:variable [api:name "searchTargetLabel"; api:value "Find QB Component"];
+           api:variable [api:name "searchTarget"; api:value "/qbcomponent/find"];
+        api:uriTemplate "/qbcomponent/find?labelcontains={text}";
+        api:exampleRequestPath "/qbcomponent/find?labelcontains=spatial";
+        api:selector [
+            api:where "SELECT DISTINCT ?item WHERE { ?item a qb:ComponentProperty . ?item ?label ?l . FILTER ( ?label = rdfs:label || ?label = rdfs:comment ) FILTER regex( str(?l), ?text, 'i' ) }"
+        ];
+        api:defaultViewer papi:basicNetworkViewer;
+        .
 	
+papi:basicNetworkViewer a api:Viewer;
+    api:name "Resources for item";
+    api:property rdfs:label, rdfs:comment, rdfs:seeAlso, dcterms:publisher, ( dcterms:subject  skos:prefLabel )  .
+
 #
 # VOCABULARY
 #

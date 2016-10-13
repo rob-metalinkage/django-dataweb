@@ -1,0 +1,224 @@
+##############################################################
+#
+# Configuration to lookup an equivalent URI for and identifier, in a target alternative namespace
+#
+# Author: Rob Atkinson, CSIRO
+# 
+#
+# Copyright (c) CSIRO 2012
+# Re-use permitted according to Creative Commons Attribution 3.0 Australia (CC BY 3.0)
+# see <http://creativecommons.org/licenses/by/3.0/au/>
+#
+# Contact: Robert A Atkinson
+#          CSIRO Land and Water
+#          Australia
+#          rob.atkinson "at" csiro.au
+#
+#
+##############################################################
+
+## Common prefixes - don't change these.
+@prefix api:     <http://purl.org/linked-data/api/vocab#> .
+@prefix dc:      <http://purl.org/dc/elements/1.1/> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix elda:    <http://www.epimorphics.com/vocabularies/lda#> .
+@prefix foaf:    <http://xmlns.com/foaf/0.1/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix skos:    <http://www.w3.org/2004/02/skos/core#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+
+@prefix lid: <http://id.sirf.net/def/schema/lid/> .
+
+# lookup API
+@prefix sirf: <http://id.sirf.net/def/schema/sirf-metamodel/> .
+@prefix lu:    <http://id.sirf.net/def/schema/sirf-relations/> .
+@prefix geo: <http://www.opengis.net/ont/geosparql#> .
+
+# and a basic API...
+# 
+lu:api a api:API;
+     api:maxPageSize "1000";
+    api:defaultPageSize "200";
+ 
+  
+    api:variable [api:name "webapp"; api:value "/dna"];
+
+    api:variable
+        [api:name "SISSDefaultResourceDirBase"; api:value "{webapp}/lda-assets/resources/siss-default/"],
+		[api:name "SIRFResourceDirBase"; api:value "{webapp}/lda-assets/resources/dna/"],
+        [api:name "_resourceRoot"; api:value "{webapp}/lda-assets/"],
+       	[api:name "_velocityRoot"; api:value "http://localhost:8080{SIRFResourceDirBase}vm/"],
+         [api:name "serviceTitle"; api:value "VOID Linkset Lookup API"],
+        [api:name "serviceAuthor"; api:value "Rob Atkinson"],
+        [api:name "serviceAuthorEmail"; api:value "rob.atkinson@csiro.au"],
+        [api:name "serviceHomePage"; api:value "http://sirf.net"];
+    api:endpoint lu:lookup, lu:lookupall, lu:related, lu:relatedspec, lu:relatedns, lu:relations;
+    api:defaultViewer lu:uriViewer;
+    rdfs:label "Lookup API"@en;
+    foaf:primaryTopic <http://sirf.net/>;
+    rdfs:seeAlso <http://sirf.net/>;
+	
+	   api:defaultFormatter [
+       a elda:VelocityFormatter
+ #      a api:XsltFormatter;
+ #       api:stylesheet "lda-assets/resources/siss-default/transform/ashtml-sissvoc.xsl";
+ 		; api:name "html"
+		; elda:className "com.epimorphics.lda.renderers.VelocityRendererFactory"
+		; api:mimeType "text/html";
+
+    ]; 
+
+    api:sparqlEndpoint <http://localhost:8080/rdf4j-server/repositories/profiles-test> ;
+	
+	#api:sparqlEndpoint <http://localhost:8080/marmotta/sparql/select>	
+ 	# api:sparqlEndpoint <http://localhost:8080/openrdf-sesame/repositories/sample-lu>;
+.
+
+    <http://localhost:8080/rdf4j-server/repositories/profiles-test> elda:supportsNestedSelect true .
+#<http://localhost:8080/marmotta/sparql/select> elda:supportsNestedSelect true .
+# <http://localhost:8080/openrdf-sesame/repositories/sample-lu> elda:supportsNestedSelect true .
+
+    
+# API endpoint to provide the contexts of a spatial identifier - what gazetteer it belongs to and what is linked
+lu:lookup a api:ItemEndpoint;
+    rdfs:comment "Return alternative identifier in a target namespace";
+    	api:variable        [api:name "title"; api:value "Lookup: id in target namespace" ] ;
+    api:uriTemplate "/lu/alt?uri={URI}&altns={NS}";
+    api:variable  [ api:name "URI"; api:type rdfs:Resource ];
+    api:variable  [ api:name "NS"; api:type xsd:string ];
+     api:exampleRequestPath "/lu/alt?uri=http://id.sirf.net/siset/UNGEGN/IDN&altns=http://id.sirf.net/siset/UN/UNSTATS-countries";
+    api:exampleRequestPath "/lu/alt?uri=http://id.sirf.net/siset/UNGEGN/IDN&altns=http://id.sirf.net/siset/UN/UNSTATS-countries&_format=ttl";
+    api:exampleRequestPath "/lu/alt?uri=http://id.sirf.net/siset/UNGEGN/IDN&altns=http://id.sirf.net/siset/UN/UNSTATS-countries&_format=xml";
+
+   api:selector [
+        api:where "GRAPH ?g {?URI owl:sameAs ?item  FILTER (STRSTARTS(STR(?item),?NS)) .} "; 
+    ];
+
+    api:defaultViewer lu:uriViewer;
+    api:viewer lu:uriViewer;
+    .
+
+lu:lookupall a api:ListEndpoint;
+    rdfs:comment "Return all known alternative identifiers for a given identifier";
+    api:variable        [api:name "title"; api:value "Lookup: alternatives "] ;
+    api:uriTemplate "/lu/listall?uri={URI}";
+    api:variable  [ api:name "URI"; api:type rdfs:Resource ];
+
+     api:exampleRequestPath "/lu/listall?uri=http://id.sirf.net/siset/UNGEGN/IDN";
+    api:exampleRequestPath "/lu/listall?uri=http://id.sirf.net/siset/UNGEGN/IDN&_format=ttl";
+    api:exampleRequestPath "/lu/listall?uri=http://id.sirf.net/siset/UNGEGN/IDN&_format=xml";
+    api:selector [
+        api:where "GRAPH ?g { ?URI owl:sameAs ?item . }"; 
+    ];
+    # defines this endpoint works for items of type skos:Concept
+
+    api:defaultViewer lu:uriViewer;
+    api:viewer lu:uriViewer;
+    .
+    
+    
+lu:related a api:ItemEndpoint;
+    rdfs:comment "Return all related objects";
+    api:variable        [api:name "title"; api:value "Lookup: related"] ;
+    api:uriTemplate "/lu/related?uri={URI}";
+    api:variable  [ api:name "URI"; api:type rdfs:Resource ];
+
+     api:exampleRequestPath "/lu/related?uri=http://id.sirf.net/siset/UNGEGN/IDN";
+    api:exampleRequestPath "/lu/related?uri=http://id.sirf.net/siset/UNGEGN/IDN&_format=ttl";
+    api:exampleRequestPath "/lu/related?uri=http://id.sirf.net/siset/UNGEGN/IDN&_format=xml";
+   # might want a better way to restrict this to specific relationship types
+   api:selector [
+        api:where "GRAPH ?g { ?item ?rel ?target FILTER ( ?URI = ?item && ?rel != owl:sameAs )}"; 
+    ];
+    # defines this endpoint works for items of type skos:Concept
+    api:defaultViewer lu:relViewer;
+	   api:defaultFormatter [
+       a elda:VelocityFormatter
+ #      a api:XsltFormatter;
+ #       api:stylesheet "lda-assets/resources/siss-default/transform/ashtml-sissvoc.xsl";
+ 		; api:name "html"
+		; elda:className "com.epimorphics.lda.renderers.VelocityRendererFactory"
+		; api:mimeType "text/html";
+		elda:velocityTemplate "page-shell-related-view.vm"
+    ]; 	
+    .
+
+   
+lu:relatedspec a api:ItemEndpoint;
+    rdfs:comment "Return all related objects using a specified relationship";
+    api:variable        [api:name "title"; api:value "Lookup: related"] ;
+    api:uriTemplate "/lu/related?uri={URI}&rel={REL}";
+    api:variable  [ api:name "URI"; api:type rdfs:Resource ];
+    api:variable  [ api:name "REL"; api:type rdfs:Resource ];
+     api:exampleRequestPath "/lu/related?uri=http://id.sirf.net/siset/UNGEGN/AUS&rel=http://www.opengis.net/ont/geosparql%23sfWithin" ;
+   # might want a better way to restrict this to specific relationship types
+   api:selector [
+        api:where "GRAPH ?g { ?URI ?REL ?item }"; 
+    ];
+    # defines this endpoint works for items of type skos:Concept
+    api:defaultViewer lu:uriViewer;
+    .
+
+## this doesnt fully work because we can select item, or relationship as a list, but cant then restrict to the combination of item and rel when constructing the result set :-(   
+lu:relatedns a api:ItemEndpoint;
+    rdfs:comment "Return all related objects where relation is defined in a specific namespace";
+    api:variable        [api:name "title"; api:value "Lookup: related"] ;
+    api:uriTemplate "/lu/related?uri={URI}&relns={NS}";
+    api:variable  [ api:name "URI"; api:type rdfs:Resource ];
+
+    api:exampleRequestPath "/lu/related?uri=http://id.sirf.net/siset/UNGEGN/AUS&relns=http://www.opengis.net/ont/geosparql%23" ;
+   # might want a better way to restrict this to specific relationship types
+   api:selector [
+        api:where "GRAPH ?g { ?item ?rel ?target FILTER ( ?URI = ?item && strstarts(str(?rel), ?NS) ) }"; 
+    ];
+    # defines this endpoint works for items of type skos:Concept
+    api:defaultViewer lu:relViewer;
+    .
+    
+lu:relations a api:ListEndpoint;
+    rdfs:comment "Return all populated relationships";
+    api:variable        [api:name "title"; api:value "Lookup: relationsips"] ;
+    api:uriTemplate "/lu/relations?uri={URI}";
+    api:variable  [ api:name "URI"; api:type rdfs:Resource ];
+
+         api:exampleRequestPath "/lu/relations?uri=http://id.sirf.net/siset/UNGEGN/AUS" ;
+   api:selector [
+#        api:where "GRAPH ?g { ?item a owl:ObjectProperty . ?item rdfs:range geo:SpatialObject .  ?item rdfs:domain geo:SpatialObject .}"; 
+    api:where "GRAPH ?g { SELECT DISTINCT ?item WHERE {?URI ?item ?p FILTER (  isIRI(?p)  ) } }" 
+];
+    # defines this endpoint works for items of type skos:Concept 
+    api:defaultViewer api:defaultViewer;
+    .
+    
+    
+lu:uriViewer a api:Viewer;
+    api:name "alternate URI";
+    api:property lu:shortid, skos:notation ;
+    .
+ 
+   
+lu:relViewer a api:Viewer;
+    api:name "related Object";
+#    api:property      (skos:broader lu:shortid), (skos:narrower lu:shortid),
+#     (skos:broader skos:notation), (skos:narrower skos:notation) , 
+#	 (geo:sfWithin lu:shortid), (geo:sfTouches lu:shortid), (geo:sfContains lu:shortid), (geo:sfIntersects lu:shortid);
+    api:properties "*.ID,*.skos_notation"
+    .
+    
+# VOCABULARY
+#
+lu:shortid   a rdfs:Property;
+    api:label "ID"@en;
+    rdfs:label "ID"@en;
+    .
+
+geo:touches   a rdfs:Property;
+    rdfs:label "Adjoins"@en;
+    .
+
+
+geo:within   a rdfs:Property;
+    rdfs:label "PartOf"@en;
+    .
