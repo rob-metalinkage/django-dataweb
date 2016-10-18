@@ -1,7 +1,8 @@
 #curl -i -X GET "http://localhost:8080/rdf4j-server/repositories/profiles-test/rdf-graphs/service?graph=cobweb:Species_GBIF_qbdimension"
-# curl -i -X DELETE "http://localhost:8080/rdf4j-server/repositories/profiles-test/contexts"
+curl -i -X DELETE "http://localhost:8080/rdf4j-server/repositories/profiles-test/statements"
 FILES=`ls ../static/*.ttl  | sed -e 's/...static.//'`
 #FILES=cube.ttl
+curl -iX DELETE "http://localhost:8080/rdf4j-server/repositories/profiles-test/namespaces"
 for f in $FILES
 do
 	echo $f

@@ -12,7 +12,12 @@ def load_base_namespaces():
     Namespace.objects.get_or_create( uri='http://resources.opengeospatial.org/def/ontology/prof/', defaults = { 'prefix' : 'prof' , 'notes': 'Interoperability Profiles model' } )
  
     print "loading base namespaces"
-    
+
+def load_urirules() :
+    """
+        Load uriredirect rules for these object types.
+    """
+    pass    
 
 def load_base_qb():
     """
