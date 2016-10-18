@@ -78,9 +78,9 @@ def load_urirules() :
 
                 
     except ImportError:
-        print "Uriredirect module not available - not configured "
+        return "Uriredirect module not available - not configured "
     except Exception as e:
-        print "error configuring URI rules: %s" % e
+        return "error configuring URI rules: %s" % e
         
 def load_base_qb():
     """

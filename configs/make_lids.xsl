@@ -155,7 +155,7 @@
         <xsl:variable name="view" select="lid_viewName|viewName"/>
         <xsl:variable name="vt" select="viewType/@href|lid_viewType/@href"/>
         
-        <xsl:if test="(count(lid_featurescope) = 0 ) or lid_featurescope = $scope">
+        <xsl:if test="(count(lid_featurescope) + count(featurescope) = 0 ) or featurescope = $scope or lid_featurescope = $scope">
 
             <TR>
                 <TD>
