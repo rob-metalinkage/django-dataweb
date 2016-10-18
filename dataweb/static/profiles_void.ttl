@@ -23,7 +23,7 @@
 
 # Makes the set of Profiles and QB components into VoiD datasets and binds the API to them - in conjunction with the basic lid_alternates_spin rules for all datasets.
   
-prof:ComponentRegister rdfs:subClassOf lid:lidset, skos:ConceptScheme;
+qb4st:ComponentRegister rdfs:subClassOf lid:lidset, skos:ConceptScheme;
    rdfs:label "The register of instances of QB Component sub types"@en ;
    rdfs:comment "Declaring the set of registered sub-types of a QB component as subclass of void:Dataset allows the attachment of metadata about the state of the register, and binds to relevant convenience APIs to access deep traversals of the inherited properties of such definitions. "@en ;
    rdfs:subClassOf [

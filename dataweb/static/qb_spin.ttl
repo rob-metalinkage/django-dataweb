@@ -14,7 +14,7 @@
 
 # domain 
 @prefix qb4st: <http://resources.opengeospatial.org/def/ontology/qb4st/> .
-@prefix prof: <http://resources.opengeospatial.org/def/ontology/prof/> .
+#@prefix prof: <http://resources.opengeospatial.org/def/ontology/prof/> .
 @prefix qbreg: <http://resources.opengeospatial.org/def/voc/qbcomponents> .
 # Classes
 
@@ -32,7 +32,6 @@ qb:ComponentProperty
 	     rdfs:comment "enforces subClass for inherited models"@en ;
 	     sp:text """
 		     PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-			 PREFIX prof: <http://resources.opengeospatial.org/def/ontology/prof/>
 			 PREFIX qb: <http://purl.org/linked-data/cube#>
 			 PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
 			 PREFIX qbreg: <http://resources.opengeospatial.org/def/voc/qbcomponents> 
@@ -52,11 +51,11 @@ qb:ComponentProperty
 	     rdfs:comment "enforces subClass for inherited models"@en ;
 	     sp:text """
 		     PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-			 PREFIX prof: <http://resources.opengeospatial.org/def/ontology/prof/>
+			 PREFIX qb4st: <http://resources.opengeospatial.org/def/ontology/qb4st/>
 			 PREFIX qb: <http://purl.org/linked-data/cube#>
 			 PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
 		        CONSTRUCT {
-					?base a prof:ComponentRegister .
+					?base a qb4st:ComponentRegister .
 					?base rdfs:label ?basestr .
 					?base rdfs:comment "Sub register of QB components" .
 					?this skos:inScheme ?base .
@@ -75,7 +74,7 @@ qb:ComponentProperty
 	     rdfs:comment "enforces subClass for inherited models"@en ;
 	     sp:text """
 		     PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-			 PREFIX prof: <http://resources.opengeospatial.org/def/ontology/prof/>
+			 PREFIX qb4st: <http://resources.opengeospatial.org/def/ontology/qb4st/>
 			 PREFIX qb: <http://purl.org/linked-data/cube#>
 			 PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
 		        CONSTRUCT {
@@ -86,7 +85,7 @@ qb:ComponentProperty
 			 WHERE {
 			    ?A a qb:ComponentProperty  .
 			    ?B a qb:ComponentProperty .			    
-			    ?B prof:implements ?A  .
+			    ?B qb4st:implements ?A  .
 			    }
 
 			""" ;
@@ -98,16 +97,16 @@ qb:ComponentProperty
 	     rdfs:comment "rule to create a grandparent (implementsTransitive association - adds transitive semantics to rdfs:subClass"@en ;
 	     sp:text """
 		     PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-			 PREFIX prof: <http://resources.opengeospatial.org/def/ontology/prof/>
+			 PREFIX qb4st: <http://resources.opengeospatial.org/def/ontology/qb4st/>
 			 PREFIX qb: <http://purl.org/linked-data/cube#>
 			CONSTRUCT {
-			    ?B prof:implementsTransitive ?A .
-			    ?A prof:implementedBy ?B .
+			    ?B qb4st:implementsTransitive ?A .
+			    ?A qb4st:implementedBy ?B .
 				}
 			 WHERE {
 			    ?A a qb:ComponentProperty  .
 			    ?B a qb:ComponentProperty .	
-			    ?B prof:implements ?A .
+			    ?B qb4st:implements ?A .
 			    }
 
 			 """ ;
@@ -117,7 +116,7 @@ qb:ComponentProperty
        	rdfs:comment "Inherit properties from implemented classes"@en ;
 	    sp:text """
 			PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-			PREFIX prof: <http://resources.opengeospatial.org/def/ontology/prof/>
+			PREFIX qb4st: <http://resources.opengeospatial.org/def/ontology/qb4st/>
 			PREFIX qb: <http://purl.org/linked-data/cube#>
 			CONSTRUCT {
 			 ?B ?prop ?p .
@@ -126,7 +125,7 @@ qb:ComponentProperty
 			 WHERE {
 			    ?A a qb:ComponentProperty  .
 			    ?B a qb:ComponentProperty .	
-			    ?B prof:implements ?A .
+			    ?B qb4st:implements ?A .
 			    ?A ?prop ?p FILTER ( NOT EXISTS { ?B ?prop ?p} &&  ?prop IN ( rdfs:range, qb:concept, qb:codelist ) )
 			    
 			    }

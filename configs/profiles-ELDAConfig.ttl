@@ -73,9 +73,16 @@ papi:api a api:API;
 	
 #VIEWERS
 
+	
+papi:basicNetworkViewer a api:Viewer;
+    api:name "Resources for item";
+    api:property rdfs:label, rdfs:comment, rdfs:seeAlso, dcterms:publisher, ( dcterms:subject  skos:prefLabel )  .
+
+#
 papi:profileShallowView a api:Viewer;
     api:name "Profile and qb components";
-	api:property rdf:type, rdfs:label, rdfs:comment, (prof:implements rdfs:label), ( rdfs:subClassOf rdfs:label),
+	api:include papi:basicNetworkViewer ;
+	api:property rdf:type, (prof:implements rdfs:label), ( rdfs:subClassOf rdfs:label),
 		(prof:dimBinding rdfs:label),
 		(prof:measureBinding rdfs:label);
      .
@@ -97,17 +104,20 @@ papi:profileDeepView a api:Viewer;
 
 papi:qbShallowView a api:Viewer;
     api:name "qb components";
-	api:property rdf:type, rdfs:label, rdfs:comment, ( rdfs:subClassOf rdfs:label), qb:codelist, qb:concept, rdfs:range,
-		qb4st:uom, qb4st:crs 
+		api:include papi:basicNetworkViewer ;
+	api:property rdf:type, ( rdfs:subClassOf rdfs:label), qb:codelist, qb:concept, rdfs:range,
+		qb4st:uom, qb4st:crs
+    		
      .
 	 
 papi:qbcomponentDeepView a api:Viewer;
     api:name "QB Component";
     api:include papi:qbShallowView;
-    api:property (prof:implementsTransitive rdfs:label) , 
-    	(prof:implementsTransitive qb:concept rdfs:label),
-    	(prof:implementsTransitive qb:codelist rdfs:label),
-		(prof:implementsTransitive rdfs:range rdfs:label)
+    api:property (qb4st:implements rdfs:label), (qb4st:implementedBy rdfs:label),
+		(qb4st:implementsTransitive rdfs:label) , 
+    	(qb4st:implementsTransitive qb:concept rdfs:label),
+    	(qb4st:implementsTransitive qb:codelist rdfs:label),
+		(qb4st:implementsTransitive rdfs:range rdfs:label)
 		;
      .
 	 
@@ -187,12 +197,7 @@ papi:findQB  a api:ListEndpoint;
         ];
         api:defaultViewer papi:basicNetworkViewer;
         .
-	
-papi:basicNetworkViewer a api:Viewer;
-    api:name "Resources for item";
-    api:property rdfs:label, rdfs:comment, rdfs:seeAlso, dcterms:publisher, ( dcterms:subject  skos:prefLabel )  .
 
-#
 # VOCABULARY
 #
 # The vocabulary declarations say which properties can be used in queries
