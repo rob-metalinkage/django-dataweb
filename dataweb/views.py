@@ -21,15 +21,16 @@ def flush_all(req) :
 
 
 def loadbase(req) :
+    messages = {}
     if req.GET.get('pdb') :
         import pdb; pdb.set_trace()
     for cfgname in ['qb4st_dim','profiles_model'] :
         cm = import_module("".join(('dataweb.fixtures.',cfgname)), 'dataweb.fixtures')
-        cm.load_base_namespaces()
-        cm.load_urirules()
-        cm.load_base_qb()
-        cm.load_rdf_mappings()
-    return HttpResponse("loaded base components")  
+        messages['ns'] = cm.load_base_namespaces()
+        messages['rules'] = cm.load_urirules()
+        messages['qb'] = cm.load_base_qb()
+        messages['rdf_io'] = cm.load_rdf_mappings()
+    return HttpResponse("loaded base components: " + str(messages))  
 
 def loadsamples(req) :
     if req.GET.get('pdb') :
