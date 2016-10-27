@@ -52,6 +52,7 @@ prof:ProfileInheritedView a lid:LDAViewer ;
     rdfs:label "Profile encapsulated view";
     rdfs:comment "Self contained ontology view of profile with all inherited constraints";
     lid:viewName    "profile" ;
+	lid:featurescope "item" ;
 #    rdfs:seeAlso <http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#>;
     .
 
@@ -60,6 +61,7 @@ prof:ProfileMinimalView a lid:LDAViewer ;
     rdfs:label "Profile minimal view";
     rdfs:comment "The minimal view of a profile, with only inherited references";
     lid:viewName    "profile_raw" ;
+	lid:featurescope "item" ;
 #    rdfs:seeAlso <http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#>;
     .
 
@@ -68,6 +70,7 @@ prof:ProfileOWLlView a lid:LDAViewer ;
     rdfs:label "Profile minimal OWL view";
     rdfs:comment "OWL view of profile, with transitive imports";
     lid:viewName    "profile_owl" ;
+    lid:featurescope "item" ;
 #    rdfs:seeAlso <http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#>;
     .
 	
@@ -75,5 +78,6 @@ prof:QbComponentInheritedView  a lid:LDAViewer ;
     rdfs:label "RDF Datacube component encapsulated view";
     rdfs:comment "Self contained ontology view of a QB component (dimension or measure) with all inherited constraints";
     lid:viewName    "qb" ;
+    lid:featurescope "item" ;
 #    rdfs:seeAlso <http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#>;
     .

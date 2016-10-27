@@ -8,9 +8,9 @@ def load_base_namespaces():
     """
         load namespaces for the meta model
     """
-    
-    Namespace.objects.get_or_create( uri='http://resources.opengeospatial.org/def/ontology/qb4st/', defaults = { 'prefix' : 'qb4st' , 'notes': 'RDF Datacube for Spatio Temporal extensions - model' } )
-    Namespace.objects.get_or_create( uri='http://resources.opengeospatial.org/def/qbcomponents/', defaults = { 'prefix' : 'qbreg' , 'notes': 'QB component definitions register' } )    
+    Namespace.objects.filter(prefix='qb4st').delete()
+    Namespace.objects.get_or_create( uri='http://resources.opengeospatial.org/def/qbcomponents/qb4st/', defaults = { 'prefix' : 'qb4st' , 'notes': 'RDF Datacube for Spatio Temporal extensions - model' } )
+    # Namespace.objects.get_or_create( uri='http://resources.opengeospatial.org/def/qbcomponents/', defaults = { 'prefix' : 'qbreg' , 'notes': 'QB component definitions register' } )    
     Namespace.objects.get_or_create( uri='http://purl.org/linked-data/cube#', defaults = { 'prefix' : 'qb' , 'notes': 'RDF Datacube' } )
     print "loading base namespaces"
     
@@ -21,60 +21,84 @@ def load_urirules() :
     try:
         __import__('uriredirect')
         from uriredirect.models import *
-        for label in ('qbcomponents','profiles') :
-            (reg,created) = UriRegister.objects.get_or_create(label=label, defaults = { 'url' : '/'.join(("http://resources.opengeospatial.org/def",label)) , 'can_be_resolved' : True} )
-            (apirule,created) = RewriteRule.objects.get_or_create(label=':'.join(("API - default redirects for register",label)) , defaults = {
-                'description' : '' ,
-                'parent' : None ,
-                'register' : None ,
-                'service_location' : None ,
-                'service_params' : None ,
-                'pattern' : '^.*/(?P<term>[^\?]+)' ,
-                'use_lda' : True ,
-                'view_param' : '_view' ,
-                'view_pattern' : None } )
-            if not created :
-                AcceptMapping.objects.filter(rewrite_rule=apirule).delete()
-            for ext in ('ttl','json','rdf','xml','html') :
-                mt = MediaType.objects.get(file_extension=ext)
-                (accept,created) = AcceptMapping.objects.get_or_create(rewrite_rule=apirule,media_type=mt, defaults = {
-                    'redirect_to' : "".join(('${server}/', label[:-1],'?uri=http://resources.opengeospatial.org/def/',label,'/${path}&_format=',ext)) } )
-            # sub rules for views
-            viewlist = [ {'name': 'alternates', 'apipath': ''.join(('lid/resourcelist','?baseuri=http://resources.opengeospatial.org/def/',label,'/${path_base}&item=${term}'))},  ]
-            if label == 'qbcomponents' :
-                viewlist = viewlist + [ {'name': 'qb', 'apipath': ''.join(('qbcomponent','?uri=http://resources.opengeospatial.org/def/',label,'/${path}'))}, ]
-            elif label == 'profiles' :
-                viewlist = viewlist + [ {'name': 'profile', 'apipath': ''.join(('profile','?uri=http://resources.opengeospatial.org/def/',label,'/${path}'))}, ]
-            for view in viewlist:
-                id = ''.join(("API for ",label," : view ",view['name']))
-                (api_vrule,created) = RewriteRule.objects.get_or_create(
-                    label=id,
-                    defaults = {
-                    'description' : '' ,
-                    'parent' : apirule ,
+        # configs to load 
+        # note we could in future possibly hit the VoiD model for the resources and bind to all the declared APIs
+        #
+        defaultroot = "http://resources.opengeospatial.org/def"
+        api_bindings = { 'qbcomponents' : [ 
+            { 'root' : defaultroot, 'apilabel' : "API - default redirects for register root", 'pattern' : None , 'ldamethod' : 'skos/resource' } ,
+            { 'root' : defaultroot, 'apilabel' : "API - default redirects for subregisters", 'pattern' : '^(?P<subregister>[^/]+)$' , 'ldamethod' : 'skos/resource' } ,
+            { 'root' : defaultroot, 'apilabel' : "API - default redirects for register items", 'pattern' : '^.*/(?P<term>[^\?]+)' , 'ldamethod' : 'qbcomponent' } ],
+            'profiles' : [ 
+            { 'root' : defaultroot, 'apilabel' : "API - default redirects for register root", 'pattern' : None , 'ldamethod' : 'skos/resource' } ,
+            { 'root' : defaultroot, 'apilabel' : "API - default redirects for subregisters", 'pattern' : '^(?P<subregister>[^/]+)$' , 'ldamethod' : 'skos/resource' } ,
+            { 'root' : defaultroot, 'apilabel' : "API - default redirects for register items", 'pattern' : '^.*/(?P<term>[^\?]+)' , 'ldamethod' : 'profile' } ]
+            }
+        load_key = 'QB4ST API rule: '    
+        RewriteRule.objects.filter(description__startswith=load_key).delete()   
+        for label in api_bindings.keys() :
+            for api in api_bindings[label] :
+                (reg,created) = UriRegister.objects.get_or_create(label=label, defaults = { 'url' : '/'.join((api['root'],label)) , 'can_be_resolved' : True} )
+                (apirule,created) = RewriteRule.objects.get_or_create(label=' : '.join((api['apilabel'],label)) , defaults = {
+                    'description' : ' : '.join((load_key ,api['apilabel'],label)),
+                    'parent' : None ,
                     'register' : None ,
                     'service_location' : None ,
+                    'service_params' : None ,
+                    'pattern' : api['pattern'] ,
+                    'use_lda' : True ,
+                    'view_param' : '_view' ,
+                    'view_pattern' : None } )
+                if not created :
+                    AcceptMapping.objects.filter(rewrite_rule=apirule).delete()
+                    
+                if api['pattern'] :
+                    path = '/${path}'
+                    path_base = '/${path_base}'
+                else:
+                    path = ''
+                    path_base = ''
+                    
+                for ext in ('ttl','json','rdf','xml','html') :
+                    mt = MediaType.objects.get(file_extension=ext)
+                    (accept,created) = AcceptMapping.objects.get_or_create(rewrite_rule=apirule,media_type=mt, defaults = {
+                        'redirect_to' : "".join(('${server}/', api['ldamethod'],'?uri=http://resources.opengeospatial.org/def/',label,path,'&_format=',ext)) } )
+                # sub rules for views
+                viewlist = [ {'name': 'alternates', 'apipath': ''.join(('lid/resourcelist','?baseuri=http://resources.opengeospatial.org/def/',label,path_base,'&item=${term}'))},  ]
+                if label == 'qbcomponents' :
+                    viewlist = viewlist + [ {'name': 'qb', 'apipath': ''.join(('qbcomponent','?uri=http://resources.opengeospatial.org/def/',label,'/${path}'))}, ]
+                elif label == 'profiles' :
+                    viewlist = viewlist + [ {'name': 'profile', 'apipath': ''.join(('profile','?uri=http://resources.opengeospatial.org/def/',label,'/${path}'))}, ]
+                for view in viewlist:
+                    id = ' : '.join((label,api['apilabel'],"view",view['name']))
+                    (api_vrule,created) = RewriteRule.objects.get_or_create(
+                        label=id,
+                        defaults = {
+                        'description' : '' ,
+                        'parent' : apirule ,
+                        'register' : None ,
+                        'service_location' : None ,
+                        'service_params' : None ,
+                        'pattern' : None ,
+                        'use_lda' : True ,
+                        'view_param' : '_view' ,
+                        'view_pattern' : view['name'] } )
+                    for ext in ('ttl','json','rdf','xml','html') :
+                        mt = MediaType.objects.get(file_extension=ext)
+                        (accept,created) = AcceptMapping.objects.get_or_create(rewrite_rule=api_vrule,media_type=mt, defaults = {
+                        'redirect_to' : "".join(('${server}/', view['apipath'],'&_format=',ext)) } )
+     
+                # bind to API
+                (rule,created) = RewriteRule.objects.get_or_create(label=' : '.join(("Register",label,api['apilabel'])) , defaults = {
+                    'description' : '' ,
+                    'parent' : apirule ,
+                    'register' : reg ,
+                    'service_location' : 'http://192.168.56.151:8080/dna' ,
                     'service_params' : None ,
                     'pattern' : None ,
                     'use_lda' : True ,
                     'view_param' : '_view' ,
-                    'view_pattern' : view['name'] } )
-                for ext in ('ttl','json','rdf','xml','html') :
-                    mt = MediaType.objects.get(file_extension=ext)
-                    (accept,created) = AcceptMapping.objects.get_or_create(rewrite_rule=api_vrule,media_type=mt, defaults = {
-                    'redirect_to' : "".join(('${server}/', view['apipath'],'&_format=',ext)) } )
- 
-            # bind to API
-            (rule,created) = RewriteRule.objects.get_or_create(label=':'.join(("API - binding for :",label)) , defaults = {
-                'description' : '' ,
-                'parent' : apirule ,
-                'register' : reg ,
-                'service_location' : 'http://192.168.56.151:8080/dna' ,
-                'service_params' : None ,
-                'pattern' : None ,
-                'use_lda' : True ,
-                'view_param' : '_view' ,
-                'view_pattern' : None } )
+                    'view_pattern' : None } )
 
                 
     except ImportError:
@@ -86,14 +110,14 @@ def load_base_qb():
     """
         load base QB components
     """
-    (d1,created) = QBSpatialDimension.objects.get_or_create(uri = "qbreg:qb4st/spatialDim", defaults = 
+    (d1,created) = QBSpatialDimension.objects.get_or_create(uri = "qb4st:spatialDim", defaults = 
             { 'label' : "Abstract Dimension for spatial reference",
                'is_class': True,
                "concept" : "",
                "comment" : "An abstract spatial dimension. Using any subclass of this in a specification indicates a data is a spatial dataset",
                "helptext" : "Must be implemented by binding to a particular datatype as the range" ,
             })
-    (d2,created) = QBSpatialDimension.objects.get_or_create(uri = "qbreg:qb4st/abstractcoord", defaults = 
+    (d2,created) = QBSpatialDimension.objects.get_or_create(uri = "qb4st:abstractcoord", defaults = 
         { 'label' : "Abstract Spatial Coordinate Dimension",
            'is_class': True,
            'sub_type_of': d1,

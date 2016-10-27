@@ -1,0 +1,39 @@
+# prefix for a register of reusable QB component definitions
+@prefix qbc: <http://resources.opengeospatial.org/def/qbcomponents> .
+
+# a canonical spatial concept ontology (update to SDW output )
+# we cannot have this as a dependency until accepted as a Note or Rec - so we declare equivalence 
+# @prefix so: <http://geosemweb.net/sdwgeo#> .
+
+# a canonical time concept ontology (update to SDW output )
+@prefix time: <http://www.w3.org/2006/time#> .
+
+
+@prefix : <http://resources.opengeospatial.org/def/qbcomponents/qb4st> .
+
+@prefix rdf:            <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:           <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:            <http://www.w3.org/2002/07/owl#> .
+@prefix xsd:            <http://www.w3.org/2001/XMLSchema#> .
+@prefix skos:           <http://www.w3.org/2004/02/skos/core#> .
+@prefix qb:             <http://purl.org/linked-data/cube#> .
+@prefix dct:        	<http://purl.org/dc/terms/> .
+@prefix foaf: 			<http://xmlns.com/foaf/0.1/>.
+#########################
+
+#
+# Ontology definitions - mainly to provide Linked Data resources 
+#
+#########################
+
+<http://resources.opengeospatial.org/def/qbcomponents> a owl:Ontology;
+   dct:creator [ foaf:mbox  <mailto:rob@metalinkage.com.au>; foaf:name "Rob Atkinson"; ];
+
+	dct:created "2016-10-25"^^xsd:date ;
+	dct:license <https://creativecommons.org/licenses/by/4.0/> ;
+	rdfs:label "Register of RDF Datacube component specifications"@en;
+	rdfs:comment "Base URI for a register of RDF Datacube components"@en;
+	# owl:imports 
+	owl:versionIRI <http://www.w3.org/2006/time#2016> 
+.
+
