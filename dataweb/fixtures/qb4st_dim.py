@@ -26,13 +26,13 @@ def load_urirules() :
         #
         defaultroot = "http://resources.opengeospatial.org/def"
         api_bindings = { 'qbcomponents' : [ 
-            { 'root' : defaultroot, 'apilabel' : "API - default redirects for register root", 'pattern' : None , 'ldamethod' : 'skos/resource' } ,
-            { 'root' : defaultroot, 'apilabel' : "API - default redirects for subregisters", 'pattern' : '^(?P<subregister>[^/]+)$' , 'ldamethod' : 'skos/resource' } ,
-            { 'root' : defaultroot, 'apilabel' : "API - default redirects for register items", 'pattern' : '^.*/(?P<term>[^\?]+)' , 'ldamethod' : 'qbcomponent' } ],
+            { 'root' : defaultroot, 'apilabel' : "API - default redirects for register root", 'pattern' : None , 'term' : 'None', 'ldamethod' : 'skos/resource' } ,
+            { 'root' : defaultroot, 'apilabel' : "API - default redirects for subregisters", 'pattern' : '^(?P<subregister>[^/]+)$' ,  'term' : 'None' , 'ldamethod' : 'skos/resource' } ,
+            { 'root' : defaultroot, 'apilabel' : "API - default redirects for register items", 'pattern' : '^.*/(?P<term>[^\?]+)' , 'term' : '${term}', 'ldamethod' : 'qbcomponent' } ],
             'profiles' : [ 
-            { 'root' : defaultroot, 'apilabel' : "API - default redirects for register root", 'pattern' : None , 'ldamethod' : 'skos/resource' } ,
-            { 'root' : defaultroot, 'apilabel' : "API - default redirects for subregisters", 'pattern' : '^(?P<subregister>[^/]+)$' , 'ldamethod' : 'skos/resource' } ,
-            { 'root' : defaultroot, 'apilabel' : "API - default redirects for register items", 'pattern' : '^.*/(?P<term>[^\?]+)' , 'ldamethod' : 'profile' } ]
+            { 'root' : defaultroot, 'apilabel' : "API - default redirects for register root", 'pattern' : None , 'term' : 'None' , 'ldamethod' : 'skos/resource' } ,
+            { 'root' : defaultroot, 'apilabel' : "API - default redirects for subregisters", 'pattern' : '^(?P<term>[^/]+)$' , 'term' : 'None',  'ldamethod' : 'skos/resource' } ,
+            { 'root' : defaultroot, 'apilabel' : "API - default redirects for register items", 'pattern' : '^.*/(?P<term>[^\?]+)' , 'term' : '${term}', 'ldamethod' : 'profile' } ]
             }
         load_key = 'QB4ST API rule: '    
         RewriteRule.objects.filter(description__startswith=load_key).delete()   
@@ -55,26 +55,28 @@ def load_urirules() :
                 if api['pattern'] :
                     path = '/${path}'
                     path_base = '/${path_base}'
+                    term=api['term']
                 else:
                     path = ''
                     path_base = ''
+                    term='None'
                     
                 for ext in ('ttl','json','rdf','xml','html') :
                     mt = MediaType.objects.get(file_extension=ext)
                     (accept,created) = AcceptMapping.objects.get_or_create(rewrite_rule=apirule,media_type=mt, defaults = {
-                        'redirect_to' : "".join(('${server}/', api['ldamethod'],'?uri=http://resources.opengeospatial.org/def/',label,path,'&_format=',ext)) } )
+                        'redirect_to' : "".join(('${server}/', api['ldamethod'],'?uri=',defaultroot,'/',label,path,'&_format=',ext)) } )
                 # sub rules for views
-                viewlist = [ {'name': 'alternates', 'apipath': ''.join(('lid/resourcelist','?baseuri=http://resources.opengeospatial.org/def/',label,path_base,'&item=${term}'))},  ]
+                viewlist = [ {'name': 'alternates', 'apipath': ''.join(('lid/resourcelist','?baseuri=',api['root'],'/',label,path_base,'&item=',term))},  ]
                 if label == 'qbcomponents' :
-                    viewlist = viewlist + [ {'name': 'qb', 'apipath': ''.join(('qbcomponent','?uri=http://resources.opengeospatial.org/def/',label,'/${path}'))}, ]
+                    viewlist = viewlist + [ {'name': 'qb', 'apipath': ''.join(('qbcomponent','?uri=',api['root'],'/',label,'/${path}'))}, ]
                 elif label == 'profiles' :
-                    viewlist = viewlist + [ {'name': 'profile', 'apipath': ''.join(('profile','?uri=http://resources.opengeospatial.org/def/',label,'/${path}'))}, ]
+                    viewlist = viewlist + [ {'name': 'profile', 'apipath': ''.join(('profile','?uri=',api['root'],'/',label,'/${path}'))}, ]
                 for view in viewlist:
                     id = ' : '.join((label,api['apilabel'],"view",view['name']))
                     (api_vrule,created) = RewriteRule.objects.get_or_create(
                         label=id,
                         defaults = {
-                        'description' : '' ,
+                        'description' : ' : '.join((load_key ,api['apilabel'],label,view['name'])) ,
                         'parent' : apirule ,
                         'register' : None ,
                         'service_location' : None ,
@@ -90,7 +92,7 @@ def load_urirules() :
      
                 # bind to API
                 (rule,created) = RewriteRule.objects.get_or_create(label=' : '.join(("Register",label,api['apilabel'])) , defaults = {
-                    'description' : '' ,
+                    'description' : ' : '.join((load_key ,'binding to register for ',api['apilabel'],label)) ,
                     'parent' : apirule ,
                     'register' : reg ,
                     'service_location' : 'http://192.168.56.151:8080/dna' ,
@@ -110,21 +112,7 @@ def load_base_qb():
     """
         load base QB components
     """
-    (d1,created) = QBSpatialDimension.objects.get_or_create(uri = "qb4st:spatialDim", defaults = 
-            { 'label' : "Abstract Dimension for spatial reference",
-               'is_class': True,
-               "concept" : "",
-               "comment" : "An abstract spatial dimension. Using any subclass of this in a specification indicates a data is a spatial dataset",
-               "helptext" : "Must be implemented by binding to a particular datatype as the range" ,
-            })
-    (d2,created) = QBSpatialDimension.objects.get_or_create(uri = "qb4st:abstractcoord", defaults = 
-        { 'label' : "Abstract Spatial Coordinate Dimension",
-           'is_class': True,
-           'sub_type_of': d1,
-           "comment" : "Abstract Dimension for spatial reference using coordinate system. Coordinate operations may be performed on such a dimension. Note that this is a statistical dimension - with a set of identified values, as opposed to a measure, which may have any value within a certain level of precision.",
-           "helptext" : "Must be bound to a specific CRS to be used" ,
-        })
-    print "loading base QB4ST"
+    print "base QB4ST loaded via static ontology file"
 
 def load_rdf_mappings():
     """

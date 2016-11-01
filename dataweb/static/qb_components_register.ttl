@@ -26,7 +26,13 @@
 #
 #########################
 
-<http://resources.opengeospatial.org/def/qbcomponents> a owl:Ontology;
+
+@prefix lid: <http://id.sirf.net/def/schema/lid/> .
+
+@prefix void: <http://rdfs.org/ns/void#> .
+
+
+<http://resources.opengeospatial.org/def/qbcomponents> a owl:Ontology, lid:lidset;
    dct:creator [ foaf:mbox  <mailto:rob@metalinkage.com.au>; foaf:name "Rob Atkinson"; ];
 
 	dct:created "2016-10-25"^^xsd:date ;
