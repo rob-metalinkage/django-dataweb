@@ -1,0 +1,379 @@
+##############################################################
+#
+# Configuration to expose a graph of relationships between spatial reference sources and online resource APIs using these identifiers.
+#
+# Author: Rob Atkinson, CSIRO
+#
+#
+# Copyright (c) CSIRO 2012
+# Re-use permitted according to Creative Commons Attribution 3.0 Australia (CC BY 3.0)
+# see <http://creativecommons.org/licenses/by/3.0/au/>
+#
+# Contact: Robert A Atkinson
+#          CSIRO Land and Water
+#          Australia
+#          rob.atkinson "at" csiro.au
+#
+# imports the LID metadata spec - ability to specify what reosurces are available for a given object
+#
+##############################################################
+
+## Common prefixes - don't change these.
+@prefix api:     <http://purl.org/linked-data/api/vocab#> .
+@prefix dc:      <http://purl.org/dc/elements/1.1/> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix elda:    <http://www.epimorphics.com/vocabularies/lda#> .
+@prefix foaf:    <http://xmlns.com/foaf/0.1/> .
+@prefix owl:     <http://www.w3.org/2002/07/owl#> .
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix skos:    <http://www.w3.org/2004/02/skos/core#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+
+@prefix lid:    <http://id.sirf.net/def/schema/lid/> .
+@prefix void: <http://rdfs.org/ns/void#> .
+@prefix qb: <http://purl.org/linked-data/cube#> .
+# Data network API
+@prefix sirf: <http://id.sirf.net/def/schema/sirf-metamodel/> .
+@prefix dna:    <http://id.sirf.net/def/api/dna#> .
+
+# must import the api for the LID spec because as an API this has the responsibility to advertise itself as an endpoint
+
+# and a basic API...
+#
+dna:api a api:API;
+    api:maxPageSize "1000";
+    api:defaultPageSize "200";
+    api:defaultFormatter [
+        a api:XsltFormatter;
+        api:name "html";
+        api:stylesheet "lda-assets/resources/siss-default/transform/ashtml-sissvoc.xsl";
+        api:mimeType "text/html";
+    ];
+    
+    api:variable [api:name "webapp"; api:value "/dna"];
+
+    api:variable
+        [api:name "SISSDefaultResourceDirBase"; api:value "{webapp}/lda-assets/resources/siss-default/"],
+        [api:name "_resourceRoot"; api:value "{webapp}/"],
+        [api:name "myResourceDirBase"; api:value "{webapp}/lda-assets/resources/dna/"],
+        [api:name "serviceTitle"; api:value "SIRF Data Network API"],
+        [api:name "serviceAuthor"; api:value "Rob Atkinson"],
+        [api:name "serviceAuthorEmail"; api:value "rob.atkinson@csiro.au"],
+        [api:name "serviceHomePage"; api:value "http://sirf.net"];
+		#
+		# set up default searches for this - in XSL form
+		#
+	   api:variable [api:name "searchTargetLabel"; api:value "Find Dataset"];
+	   api:variable [api:name "searchTarget"; api:value "dna/finddataset"];
+	   
+    api:endpoint dna:URIEndpoint , dna:listGaz, dna:findGaz, dna:findDataset, dna:findDatasetExact,
+			dna:datanetwork , dna:dataset-qb,  dna:datasubject, dna:datageosubject, dna:datasubjectsearch, 
+    		dna:listDatasets, dna:listGazLinksets, dna:listLinksets, dna:listLinkedGaz,dna:listRelatedGaz;
+    api:defaultViewer dna:basicNetworkViewer;
+    rdfs:label "SIRF Data Network API"@en;
+    foaf:primaryTopic <http://sirf.net/>;
+    rdfs:seeAlso <http://portal.sirf.net/>;
+
+    api:sparqlEndpoint <http://localhost:8080/rdf4j-server/repositories/gaz> ;
+	#api:sparqlEndpoint <http://localhost:8080/marmotta/sparql/select>
+    .
+
+<http://localhost:8080/rdf4j-server/repositories/gaz> elda:supportsNestedSelect false .
+# <http://localhost:8080/marmotta/sparql/select> elda:supportsNestedSelect false .
+
+# basic resource enpoint using SPARQL describe - this means that metadata is extensible without API change, can use this to get metadata for any resource, to one level deep
+dna:URIEndpoint a api:ItemEndpoint
+		; rdfs:comment "Describe a resource, regardless of object type. Allows discovery of any arbitrary metadata known about a given resource." 
+		;	api:variable        [api:name "title"; api:value "Resource description"]
+		; api:uriTemplate  "/dna/resource?uri={URI}" 
+		; api:exampleRequestPath  "/dna/resource?uri=http://environment.data.gov.au/water/id/catchment"
+		; api:exampleRequestPath  "/dna/resource?uri=http://id.sirf.net/siset/UNGEGN"
+		; api:itemTemplate  "{URI}"
+		; api:defaultViewer  api:describeViewer
+		; api:properties "dcterms:subject.skos.preLfLabel" ;
+		; api:viewer api:basicViewer,api:describeViewer,api:labelledDescribeViewer
+		.
+		
+dna:listGaz a api:ListEndpoint;
+    rdfs:label "SIset (Gazetteers) list";
+    rdfs:comment "Provides a list of registered SISets (Spatial Identifier Sets - datasets containing, and acting as registers of spatial object definitions";
+    api:exampleRequestPath "/dna/sisets";
+    api:uriTemplate "/dna/sisets";
+    api:selector [
+        api:where
+          """SELECT DISTINCT ?item WHERE { ?item rdf:type+ sirf:gazetteer }""";
+        ];
+     api:sort "label"	;
+        api:defaultViewer dna:basicNetworkViewer;
+    .
+    
+dna:findGaz  a api:ListEndpoint;
+    rdfs:label "SIset (Gazetteers) search";
+        rdfs:comment "List SIset where any label property contains this text, case-insensitive";
+        	api:variable        [api:name "title"; api:value "Search Results"] ;
+        api:uriTemplate "/dna/findgaz?q={text}";
+        api:exampleRequestPath "/dna/findgaz?q=admin";
+        api:selector [
+            api:where "SELECT DISTINCT ?item WHERE { ?item a sirf:gazetteer . ?item ?label ?l . FILTER ( ?label = rdfs:label || ?label = rdfs:comment ) FILTER regex( str(?l), ?text, 'i' ) }"
+        ];
+        api:defaultViewer dna:basicNetworkViewer;
+        .
+
+#matches SISSVoc  search, so SISSVOC search form will work for this
+dna:findDatasetExact  a api:ListEndpoint;
+    rdfs:label "Search for a Dataset using exact term";
+        rdfs:comment "List SIset where any label property contains this text, case-insensitive";
+        	api:variable        [api:name "title"; api:value "Search Results"] ;
+        api:uriTemplate "/dna/finddataset?anylabel={text}";
+        api:exampleRequestPath "/dna/finddataset?anylabel=admin";
+        api:selector [
+            api:where "SELECT DISTINCT ?item WHERE {  ?item a void:Dataset . ?item ?label ?text . FILTER ( ?label = rdfs:label || ?label = rdfs:comment ) }"
+        ];
+        api:defaultViewer dna:basicNetworkViewer;
+        .
+		
+#matches SISSVoc search, so SISSVOC search form will work for this		
+dna:findDataset a api:ListEndpoint;
+    rdfs:label "Search for a Dataset";
+        rdfs:comment "List SIset where any label property contains this text, case-insensitive";
+        	api:variable        [api:name "title"; api:value "Search Results"] ;
+        api:uriTemplate "/dna/finddataset?labelcontains={text}";
+        api:exampleRequestPath "/dna/finddataset?labelcontains=admin";
+        api:selector [
+            api:where "SELECT DISTINCT ?item WHERE {  ?item a void:Dataset . ?item ?label ?l . FILTER ( ?label = rdfs:label || ?label = rdfs:comment ) FILTER regex( str(?l), ?text, 'i' ) }"
+        ];
+        api:defaultViewer dna:basicNetworkViewer;
+        .
+
+
+#see rdfs:comment
+dna:listDatasets a api:ListEndpoint;
+	api:variable        [api:name "title"; api:value "Datasets listing"] ;
+    rdfs:label "All datasets list";
+    rdfs:comment "Lists all datasets known about. Includes any registered SIsets (gazetteers), linksets (crosswalks) and spatially referenced data";
+    api:exampleRequestPath "/dna/datasetlist";
+    api:uriTemplate "/dna/datasetlist";
+    api:selector [
+        api:where
+          """SELECT DISTINCT ?item WHERE { ?item rdf:type void:Dataset}""";
+        ];
+    api:defaultViewer dna:linkedDatasetsViewer;
+    .
+
+#see rdfs:comment
+dna:listLinksets a api:ListEndpoint;
+    rdfs:label "Linksets (crosswalks between SI) list";
+    	api:variable        [api:name "title"; api:value "List SI crosswalk Linksets"] ;
+    rdfs:comment "Lists all datasets containing sameAs relationships between individual gazetteer entries";
+    api:exampleRequestPath "/dna/linksets";
+    api:uriTemplate "/dna/linksets";
+    api:selector [
+        api:where
+          "SELECT DISTINCT ?item WHERE { ?item rdf:type ?t . ?t rdfs:subClassOf void:Linkset FILTER (?t != owl:Class ) }";
+    ];
+    api:defaultViewer dna:basicNetworkViewer;
+    .
+    
+#see rdfs:comment
+dna:listGazLinksets a api:ListEndpoint;
+    rdfs:label "Linksets (crosswalks between SI) list";
+    	api:variable        [api:name "title"; api:value "List SI crosswalk Linksets"] ;
+    rdfs:comment "Lists all datasets containing sameAs relationships between spatial datasets";
+    api:exampleRequestPath "/dna/gazxreflinksets";
+    api:uriTemplate "/dna/gazxreflinksets";
+    api:selector [
+        api:where
+          "SELECT DISTINCT ?item WHERE { ?item rdf:type sirf:gazxref }";
+    ];
+    api:defaultViewer dna:basicNetworkViewer;
+    .   
+
+# API endpoint to provide the contexts of a spatial identifier - what gazetteer it belongs to and what is linked
+dna:dataset-qb a api:ItemEndpoint;
+	api:variable        [api:name "title"; api:value "Dataset structure and access specifications"] ;
+    rdfs:label "Dataset structure and access specifications";
+    rdfs:comment "Describe Dataset structure (if available) and  resolvable Web API resources are available for a given identifier";
+    api:uriTemplate "/dna/dataset?uri={URI}";
+    api:exampleRequestPath "/dna/dataset?URI=http://demo.sirf.net/datasets/UNSTATS/mdgi";
+    api:variable  [ api:name "URI"; api:type rdfs:Resource ];
+
+	api:itemTemplate  "{URI}" ;
+    # defines this endpoint works for items of type skos:Concept
+    api:defaultViewer dna:linkedDatasetsViewer;
+    .
+
+	dna:datanetwork a api:ListEndpoint;
+	api:variable        [api:name "title"; api:value "Datasets using target SIset"] ;
+    rdfs:label "information network starting point for a given SIset";
+    rdfs:comment "Describe what Datasets use, and potentially what resolvable Web API resources are available for a given identifier";
+    api:uriTemplate "/dna/datanetwork?uri={URI}";
+    api:exampleRequestPath "/dna/datanetwork?uri=http://id.sirf.net/siset/UN/UNSTATS-countries";
+    api:exampleRequestPath "/dna/datanetwork?uri=http://id.sirf.net/siset/inasdi/provinsi";
+    api:exampleRequestPath "/dna/datanetwork?uri=http://id.sirf.net/datasets/wikipedia";
+    api:exampleRequestPath "/dna/datanetwork?uri=http://id.sirf.net/siset/OSM/admin/IDN-provinces";
+    api:exampleRequestPath "/dna/datanetwork?uri=http://id.sirf.net/siset/ISO/iso3166-A3";
+    api:exampleRequestPath "/dna/datanetwork?uri=http://neiipid.bom.gov.au/id/geo/ahgf_hrc";
+    api:variable  [ api:name "URI"; api:type rdfs:Resource ];
+
+	api:selector [
+            api:where "GRAPH ?g {  ?item void:vocabulary ?URI . } ";
+        ];
+    # defines this endpoint works for items of type skos:Concept
+    api:defaultViewer dna:linkedDatasetsViewer;
+    .
+	
+# API endpoint to provide the contexts of a spatial identifier - what gazetteer it belongs to and what is linked
+dna:datageosubject a api:ListEndpoint;
+	api:variable        [api:name "title"; api:value "Datasets for a given subject using target SIset"] ;
+    rdfs:label "information network a given SIset for a specific subject";
+    rdfs:comment "Datasets for a given subject, and what resolvable Web API resources are available for a given identifier";
+    api:uriTemplate "/dna/datanetwork?uri={URI}&subject={SUB}";
+    api:exampleRequestPath "/dna/datanetwork?uri=http://id.sirf.net/siset/UN/UNSTATS-countries&subject=http://purl.org/linked-data/sdmx/2009/subject%233.3.5";
+    api:exampleRequestPath "/dna/datanetwork?uri=http://id.sirf.net/siset/UN/UNSTATS-countries&subject=http://purl.org/linked-data/sdmx/2009/subject%233.3";
+    api:variable  [ api:name "URI"; api:type rdfs:Resource ];
+    api:variable  [ api:name "SUB"; api:type rdfs:Resource ];
+	api:selector [
+            api:where """
+            		SELECT DISTINCT ?item WHERE { 
+    					  ?item void:vocabulary ?URI .
+						 { ?item dcterms:subject ?b . ?SUB skos:broader+ ?b }
+								UNION						 
+						 { ?item dcterms:subject ?b . ?SUB skos:broaderTransitive ?b } 
+							UNION
+						 { ?item dcterms:subject ?b . ?b skos:broader+ ?SUB}  
+							UNION
+						 { ?item dcterms:subject ?SUB }	
+					}  """  ;
+        ];
+    # defines this endpoint works for items of type skos:Concept
+    api:defaultViewer dna:linkedDatasetsViewer;
+    .
+
+# API endpoint to provide the contexts of a spatial identifier - what gazetteer it belongs to and what is linked
+dna:datasubject a api:ListEndpoint;
+	api:variable        [api:name "title"; api:value "Datasets for a given subject, any SIset"] ;
+    rdfs:label "information network for a specific subject";
+    rdfs:comment "Datasets for a given subject, and what resolvable Web API resources are available";
+    api:uriTemplate "/dna/datanetwork?subject={SUB}";
+    api:exampleRequestPath "/dna/datanetwork?subject=http://purl.org/linked-data/sdmx/2009/subject%233.3.5";
+    api:exampleRequestPath "/dna/datanetwork?subject=http://purl.org/linked-data/sdmx/2009/subject%233.3";
+    api:variable  [ api:name "SUB"; api:type rdfs:Resource ];
+	api:selector [
+            api:where """
+            		SELECT DISTINCT ?item WHERE { 
+    					 { ?item dcterms:subject ?b . ?SUB skos:broader+ ?b } 
+						 UNION						 
+						 { ?item dcterms:subject ?b . ?SUB skos:broaderTransitive ?b } 
+							UNION
+						 { ?item dcterms:subject ?b . ?b skos:broader+ ?SUB} 
+							UNION
+						 { ?item dcterms:subject ?SUB }	
+					}  """  ;
+        ];
+    # defines this endpoint works for items of type skos:Concept
+    api:defaultViewer dna:linkedDatasetsViewer;
+    .
+    
+# API endpoint to provide the contexts of a spatial identifier - what gazetteer it belongs to and what is linked
+dna:datasubjectsearch a api:ListEndpoint;
+	api:variable        [api:name "title"; api:value "Datasets for a given subject, any SIset"] ;
+    rdfs:label "information network for a specific subject";
+    rdfs:comment "Datasets for a given subject, and what resolvable Web API resources are available";
+    api:uriTemplate "/dna/datanetwork?q={text}";
+    api:exampleRequestPath "/dna/datanetwork?subject=http://purl.org/linked-data/sdmx/2009/subject%233.3.5";
+    api:exampleRequestPath "/dna/datanetwork?subject=http://purl.org/linked-data/sdmx/2009/subject%233.3";
+    api:variable  [ api:name "SUB"; api:type rdfs:Resource ];
+	api:selector [
+            api:where """
+            		SELECT DISTINCT ?item WHERE { 
+    					 { ?item dcterms:subject ?s . ?s ?label ?l . FILTER ( ?label = rdfs:label || ?label = skos:prefLabel || ?label = skos:altLabel ) FILTER regex( str(?l), ?text, 'i' ) } 
+					}  """  ;
+        ];
+    # defines this endpoint works for items of type skos:Concept
+    api:defaultViewer dna:linkedDatasetsViewer;
+    .
+
+#see rdfs:comment
+dna:listLinkedGaz a api:ListEndpoint;
+	api:variable        [api:name "title"; api:value "SIsets with crosswalks (sameAs relationships) from target SIset"] ;
+    rdfs:label "List cross referenced gazetteers";
+    rdfs:comment "List of gazetteers which have cross references to a gazetteer. This does not imply that all cross references are populated.";
+    api:exampleRequestPath "/dna/linkedgazlist?uri=http://id.sirf.net/siset/UNGEGN";
+     api:uriTemplate "/dna/linkedgazlist?uri={URI}";
+    api:variable  [ api:name "URI"; api:type rdfs:Resource ];
+    api:selector [
+        api:where """SELECT DISTINCT ?item WHERE { ?item a sirf:gazxref .  ?item void:subjectsTarget ?URI . }""";
+    ];
+    api:defaultViewer dna:linkedSetsViewer;
+    .
+
+dna:listRelatedGaz a api:ListEndpoint;
+    rdfs:label "List related gazetteers";
+    	api:variable        [api:name "title"; api:value "SIsets with relationships (not sameAs) to target SIset"] ;
+    rdfs:comment "List of gazetteers which have relationships to a gazetteer. This does not imply that all cross references are populated.";
+    api:exampleRequestPath "/dna/related?uri=http://id.sirf.net/siset/UNGEGN";
+    api:uriTemplate "/dna/related?uri={URI}";
+    api:variable  [ api:name "URI"; api:type rdfs:Resource ];
+    api:selector [
+        api:where """SELECT DISTINCT ?item WHERE { ?item a sirf:gazrel .  ?item void:subjectsTarget ?URI . }""";
+    ];
+    api:defaultViewer dna:linkedSetsViewer;
+    .
+
+# CUSTOM VIEWERS:
+
+dna:basicNetworkViewer a api:Viewer;
+    api:name "Resources for item";
+    api:property rdfs:label, rdfs:comment, rdfs:seeAlso, dcterms:date,  dcterms:publisher, ( dcterms:subject  skos:prefLabel )  .
+
+dna:linkedSetsViewer a api:Viewer;
+    api:name "Potential links for item";
+    rdfs:comment "Identifies linksets related to a target dataset" ;
+    api:include dna:basicNetworkViewer;
+    api:property void:entities, (void:linkPredicate rdfs:label), (void:objectsTarget), (void:objectsTarget rdfs:label), (void:objectsTarget void:entities), (void:objectsTarget void:uriSpace), void:entities , (void:subjectsTarget void:entities); 
+    .
+
+dna:linkedDatasetsViewer a api:Viewer;
+    api:name "Potential links for related data (for a given item) via external APIs";
+    api:include dna:basicNetworkViewer;
+    api:property (void:feature rdfs:label), void:exampleResource ,
+	 (void:feature rdfs:comment),
+    (void:feature sirf:urlTemplate), 
+    (void:feature lid:featurescope), 
+    (qb:structure qb:component rdfs:label ),    (qb:structure qb:component rdfs:range rdfs:label),    (qb:structure qb:component qb:concept skos:prefLabel )    ,
+    (qb:structure qb:component  qb:codeList rdfs:label )
+    ;
+
+    .
+
+
+# VOCABULARY
+#
+
+dcterms:licence
+    a rdfs:Property;
+    api:label "DataLicence"@en;
+    rdfs:label "Data Licence"@en;
+    .
+
+dcterms:publisher
+    a rdfs:Property;
+    api:label "Publisher"@en;
+    rdfs:label "Publisher"@en;
+    .
+
+dcterms:date
+    a rdfs:Property;
+    api:label "Date"@en;
+    rdfs:label "Date"@en;
+    .
+void:classPartition
+    a rdfs:Property;
+    api:label "ThematicSubset"@en;
+    .
+
+void:feature     a rdfs:Property;
+    api:label "Access"@en;
+    rdfs:label "Access"@en;
+    .

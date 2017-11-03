@@ -13,4 +13,4 @@
 ($1 prof:implementsTransitive $2) ($2 qb:codelist $3) -> ($1 prof:codelistTransitive $3)
 ($1 prof:implementsTransitive $2) ($2 rdfs:range $3) -> ($1 prof:rangeTransitive $3)
 ($1 prof:implementsTransitive $2) ($2 qb:concept $3) -> ($1 prof:conceptTransitive $3)
-($1 prof:implementsTransitive $2) ($2 qb:concept $3) -> ($1 prof:conceptTransitive $3)
+($1 prof:implementsTransitive $2) ($2 qb4st:uom $3) -> ($1 prof:uomTransitive $3)

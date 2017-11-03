@@ -13,10 +13,7 @@
 
 
 # domain 
-@prefix qb4st: <http://resources.opengeospatial.org/def/ontology/qb4st/> .
-#@prefix prof: <http://resources.opengeospatial.org/def/ontology/prof/> .
-@prefix qbreg: <http://resources.opengeospatial.org/def/voc/qbcomponents> .
-# Classes
+@prefix qb4st: <http://resources.opengeospatial.org/def/qbcomponents/qb4st/> .
 
 qb4st:qbspin a owl:Ontology;
 	rdfs:label "Entailment rules to support convenience APIs over deep inheritance trees of QB component specialisations"@en;
@@ -34,9 +31,7 @@ qb:ComponentProperty
 		     PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 			 PREFIX qb: <http://purl.org/linked-data/cube#>
 			 PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
-			 PREFIX qbreg: <http://resources.opengeospatial.org/def/voc/qbcomponents> 
 		        CONSTRUCT {
-					?this skos:inScheme qbreg: .
 					?this a skos:Concept .
 				}
 			 WHERE {
@@ -59,6 +54,7 @@ qb:ComponentProperty
 					?base rdfs:label ?basestr .
 					?base rdfs:comment "Sub register of QB components" .
 					?this skos:inScheme ?base .
+					?base a skos:ConceptScheme .
 				}
 			 WHERE {
 			    ?this a qb:ComponentProperty
@@ -85,7 +81,7 @@ qb:ComponentProperty
 			 WHERE {
 			    ?A a qb:ComponentProperty  .
 			    ?B a qb:ComponentProperty .			    
-			    ?B qb4st:implements ?A  .
+			    ?B skos:broader ?A  .
 			    }
 
 			""" ;
@@ -99,14 +95,15 @@ qb:ComponentProperty
 		     PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 			 PREFIX qb4st: <http://resources.opengeospatial.org/def/ontology/qb4st/>
 			 PREFIX qb: <http://purl.org/linked-data/cube#>
+			 PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
 			CONSTRUCT {
-			    ?B qb4st:implementsTransitive ?A .
-			    ?A qb4st:implementedBy ?B .
+			    ?B skos:broaderTransitive ?A .
+			    ?A skos:narrowerTransitive ?B .
 				}
 			 WHERE {
 			    ?A a qb:ComponentProperty  .
 			    ?B a qb:ComponentProperty .	
-			    ?B qb4st:implements ?A .
+			    ?B skos:broader ?A .
 			    }
 
 			 """ ;
@@ -118,6 +115,7 @@ qb:ComponentProperty
 			PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 			PREFIX qb4st: <http://resources.opengeospatial.org/def/ontology/qb4st/>
 			PREFIX qb: <http://purl.org/linked-data/cube#>
+			PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
 			CONSTRUCT {
 			 ?B ?prop ?p .
 
@@ -125,7 +123,7 @@ qb:ComponentProperty
 			 WHERE {
 			    ?A a qb:ComponentProperty  .
 			    ?B a qb:ComponentProperty .	
-			    ?B qb4st:implements ?A .
+			    ?B skos:broader ?A .
 			    ?A ?prop ?p FILTER ( NOT EXISTS { ?B ?prop ?p} &&  ?prop IN ( rdfs:range, qb:concept, qb:codelist ) )
 			    
 			    }

@@ -80,7 +80,7 @@ prof:Profile a rdfs:Class;
 			 WHERE {
 			    ?A a prof:Profile .
 			    ?B a prof:Profile .
-			    ?B prof:implements ?A .
+			    ?B skos:broader ?A .
 			    }
 			""" ;
 	    ]  ;
@@ -93,13 +93,13 @@ prof:Profile a rdfs:Class;
 		     PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 			 PREFIX prof: <http://resources.opengeospatial.org/def/ontology/prof/>
 		     CONSTRUCT {
-			    ?B prof:implementsTransitive ?A .
-			    ?A prof:implementedBy ?B .
+			    ?B skos:broaderTransitive ?A .
+			    ?A skos:narrowerTransitive ?B .
 				}
 			 WHERE {
 			    ?A a prof:Profile .
 			    ?B a prof:Profile .
-			    ?B prof:implements+ ?A .
+			    ?B skos:broader+ ?A .
 			    }
 			 """ ;
 		    ]  ;
@@ -193,21 +193,6 @@ prof:MeasureBinding a rdfs:Class;
 	] ;
 	.
 
-
-# Properties
-prof:implements a rdfs:Property;
-	rdfs:label "inherits constraints from the related object";
-	# meta:rangeIncludes prof:Profile
-	# meta:domainIncludes prof:Profile
-	rdfs:comment "Could be a subProperty of rfds:subClassOf - an inheritance mechanism that triggers overrides of ranges etc"@en ;
-.
-
-prof:implementsTransitive a rdfs:Property;
-	rdfs:label "indirect inheritance . ";
-	# meta:rangeIncludes prof:Profile
-	# meta:domainIncludes prof:Profile
-	rdfs:comment "Convenience handled by entailment, listing all sources of inherited properties"@en ;
-.
 
 
 prof:dimBinding a rdfs:Property;

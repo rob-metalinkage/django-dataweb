@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<result format="linked-data-api"
+        href="http://192.168.56.151:8080/dna/lid/resourcelist?baseuri=http://resources.opengeospatial.org/def/qbcomponents/cobweb&amp;item=Biota_GBIF&amp;_format=xml"
+        version="0.2">
+   <definition href="http://192.168.56.151:8080/dna/lid/resourcelist?item=Biota_GBIF&amp;baseuri=http://resources.opengeospatial.org/def/qbcomponents/cobweb&amp;_format=xml"/>
+   <extendedMetadataVersion href="http://192.168.56.151:8080/dna/lid/resourcelist?item=Biota_GBIF&amp;baseuri=http://resources.opengeospatial.org/def/qbcomponents/cobweb&amp;_format=xml&amp;_metadata=all"/>
+   <primaryTopic href="http://resources.opengeospatial.org/def/qbcomponents/cobweb">
+      <isPrimaryTopicOf href="http://192.168.56.151:8080/dna/lid/resourcelist?baseuri=http://resources.opengeospatial.org/def/qbcomponents/cobweb&amp;item=Biota_GBIF&amp;_format=xml"/>
+      <feature>
+         <item href="http://id.sirf.net/def/schema/lid/LIDContentLinks">
+            <hasFormat>
+               <item href="http://purl.org/NET/mediatypes/text/html">
+                  <ldatoken datatype="string">html</ldatoken>
+               </item>
+               <item href="http://purl.org/NET/mediatypes/application/json">
+                  <ldatoken datatype="string">json</ldatoken>
+               </item>
+               <item href="http://purl.org/NET/mediatypes/application/rdf+ttl">
+                  <ldatoken datatype="string">ttl</ldatoken>
+               </item>
+               <item href="http://purl.org/NET/mediatypes/application/xml">
+                  <ldatoken datatype="string">xml</ldatoken>
+               </item>
+               <item href="http://purl.org/NET/mediatypes/application/rdf+xml">
+                  <ldatoken datatype="string">rdf</ldatoken>
+               </item>
+            </hasFormat>
+            <label datatype="string">lists available information resources for a concept identifer</label>
+            <viewName datatype="string">alternates</viewName>
+         </item>
+         <item href="http://id.sirf.net/def/schema/lid/LIDview">
+            <hasFormat>
+               <item href="http://purl.org/NET/mediatypes/text/html">
+                  <ldatoken datatype="string">html</ldatoken>
+               </item>
+               <item href="http://purl.org/NET/mediatypes/application/json">
+                  <ldatoken datatype="string">json</ldatoken>
+               </item>
+               <item href="http://purl.org/NET/mediatypes/application/rdf+ttl">
+                  <ldatoken datatype="string">ttl</ldatoken>
+               </item>
+               <item href="http://purl.org/NET/mediatypes/application/xml">
+                  <ldatoken datatype="string">xml</ldatoken>
+               </item>
+               <item href="http://purl.org/NET/mediatypes/application/rdf+xml">
+                  <ldatoken datatype="string">rdf</ldatoken>
+               </item>
+            </hasFormat>
+            <label datatype="string">Default description view of identified object</label>
+            <viewName datatype="string">lid</viewName>
+         </item>
+         <item href="http://resources.opengeospatial.org/def/ontology/prof/QbComponentInheritedView">
+            <hasFormat>
+               <item href="http://purl.org/NET/mediatypes/text/html">
+                  <ldatoken datatype="string">html</ldatoken>
+               </item>
+               <item href="http://purl.org/NET/mediatypes/application/json">
+                  <ldatoken datatype="string">json</ldatoken>
+               </item>
+               <item href="http://purl.org/NET/mediatypes/application/rdf+ttl">
+                  <ldatoken datatype="string">ttl</ldatoken>
+               </item>
+               <item href="http://purl.org/NET/mediatypes/application/xml">
+                  <ldatoken datatype="string">xml</ldatoken>
+               </item>
+               <item href="http://purl.org/NET/mediatypes/application/rdf+xml">
+                  <ldatoken datatype="string">rdf</ldatoken>
+               </item>
+            </hasFormat>
+            <label datatype="string">RDF Datacube component encapsulated view</label>
+            <viewName datatype="string">qb</viewName>
+         </item>
+         <item href="http://resources.opengeospatial.org/def/api/skosallbroader">
+            <featurescope datatype="string">item</featurescope>
+            <hasFormat>
+               <item href="http://purl.org/NET/mediatypes/text/html">
+                  <ldatoken datatype="string">html</ldatoken>
+               </item>
+               <item href="http://purl.org/NET/mediatypes/application/json">
+                  <ldatoken datatype="string">json</ldatoken>
+               </item>
+               <item href="http://purl.org/NET/mediatypes/application/rdf+ttl">
+                  <ldatoken datatype="string">ttl</ldatoken>
+               </item>
+               <item href="http://purl.org/NET/mediatypes/application/xml">
+                  <ldatoken datatype="string">xml</ldatoken>
+               </item>
+               <item href="http://purl.org/NET/mediatypes/application/rdf+xml">
+                  <ldatoken datatype="string">rdf</ldatoken>
+               </item>
+            </hasFormat>
+            <label datatype="string">SKOS All Broader View</label>
+            <viewName datatype="string">skos:allbroader</viewName>
+         </item>
+         <item href="http://resources.opengeospatial.org/def/api/skosbroader">
+            <featurescope datatype="string">item</featurescope>
+            <hasFormat>
+               <item href="http://purl.org/NET/mediatypes/text/html">
+                  <ldatoken datatype="string">html</ldatoken>
+               </item>
+               <item href="http://purl.org/NET/mediatypes/application/json">
+                  <ldatoken datatype="string">json</ldatoken>
+               </item>
+               <item href="http://purl.org/NET/mediatypes/application/rdf+ttl">
+                  <ldatoken datatype="string">ttl</ldatoken>
+               </item>
+               <item href="http://purl.org/NET/mediatypes/application/xml">
+                  <ldatoken datatype="string">xml</ldatoken>
+               </item>
+               <item href="http://purl.org/NET/mediatypes/application/rdf+xml">
+                  <ldatoken datatype="string">rdf</ldatoken>
+               </item>
+            </hasFormat>
+            <label datatype="string">SKOS Broader View</label>
+            <viewName datatype="string">skos:broader</viewName>
+         </item>
+         <item href="http://resources.opengeospatial.org/def/api/skosnarrower">
+            <featurescope datatype="string">item</featurescope>
+            <hasFormat>
+               <item href="http://purl.org/NET/mediatypes/text/html">
+                  <ldatoken datatype="string">html</ldatoken>
+               </item>
+               <item href="http://purl.org/NET/mediatypes/application/json">
+                  <ldatoken datatype="string">json</ldatoken>
+               </item>
+               <item href="http://purl.org/NET/mediatypes/application/rdf+ttl">
+                  <ldatoken datatype="string">ttl</ldatoken>
+               </item>
+               <item href="http://purl.org/NET/mediatypes/application/xml">
+                  <ldatoken datatype="string">xml</ldatoken>
+               </item>
+               <item href="http://purl.org/NET/mediatypes/application/rdf+xml">
+                  <ldatoken datatype="string">rdf</ldatoken>
+               </item>
+            </hasFormat>
+            <label datatype="string">SKOS Narrower View</label>
+            <viewName datatype="string">skos:narrower</viewName>
+         </item>
+         <item href="http://resources.opengeospatial.org/def/api/skostopconcept">
+            <featurescope datatype="string">set</featurescope>
+            <hasFormat>
+               <item href="http://purl.org/NET/mediatypes/text/html">
+                  <ldatoken datatype="string">html</ldatoken>
+               </item>
+               <item href="http://purl.org/NET/mediatypes/application/json">
+                  <ldatoken datatype="string">json</ldatoken>
+               </item>
+               <item href="http://purl.org/NET/mediatypes/application/rdf+ttl">
+                  <ldatoken datatype="string">ttl</ldatoken>
+               </item>
+               <item href="http://purl.org/NET/mediatypes/application/xml">
+                  <ldatoken datatype="string">xml</ldatoken>
+               </item>
+               <item href="http://purl.org/NET/mediatypes/application/rdf+xml">
+                  <ldatoken datatype="string">rdf</ldatoken>
+               </item>
+            </hasFormat>
+            <label datatype="string">SKOS top concept</label>
+            <viewName datatype="string">skos:topconcepts</viewName>
+         </item>
+      </feature>
+      <label datatype="string">http://resources.opengeospatial.org/def/qbcomponents/cobweb</label>
+      <type>
+         <item/>
+         <item/>
+         <item/>
+         <item/>
+         <item/>
+         <item/>
+         <item/>
+         <item href="http://resources.opengeospatial.org/def/ontology/qb4st/ComponentRegister">
+            <label>
+               <item lang="en">A Class declaration for sets of QB components</item>
+               <item lang="en">The register of instances of QB Component sub types</item>
+            </label>
+         </item>
+         <item href="http://www.w3.org/2004/02/skos/core#ConceptScheme"/>
+         <item href="http://rdfs.org/ns/void#Dataset">
+            <label datatype="string">dataset</label>
+         </item>
+         <item href="http://www.w3.org/2000/01/rdf-schema#Resource"/>
+         <item href="http://id.sirf.net/def/schema/lid/lidset">
+            <label datatype="string">lidset</label>
+         </item>
+      </type>
+   </primaryTopic>
+   <type>
+      <item href="http://purl.org/linked-data/api/vocab#ItemEndpoint"/>
+      <item href="http://purl.org/linked-data/api/vocab#Page"/>
+   </type>
+</result>

@@ -95,7 +95,7 @@ def load_urirules() :
                     'description' : ' : '.join((load_key ,'binding to register for ',api['apilabel'],label)) ,
                     'parent' : apirule ,
                     'register' : reg ,
-                    'service_location' : 'http://192.168.56.151:8080/dna' ,
+                    'service_location' : 'http://resources.opengeospatial.org/dna' ,
                     'service_params' : None ,
                     'pattern' : None ,
                     'use_lda' : True ,
@@ -129,15 +129,15 @@ def load_rdf_mappings():
     am = AttributeMapping(scope=pm, attr="helptext", predicate="rdfs:comment", is_resource=False).save()
     am = AttributeMapping(scope=pm, attr="range", predicate="rdfs:range", is_resource=True).save()
     am = AttributeMapping(scope=pm, attr="concept", predicate="qb:concept", is_resource=True).save()
-    am = AttributeMapping(scope=pm, attr="sub_type_of.uri", predicate="qb4st:implements", is_resource=True).save()
+    am = AttributeMapping(scope=pm, attr="sub_type_of.uri", predicate="skos:broader", is_resource=True).save()
     
     (object_type,created) = ObjectType.objects.get_or_create(uri="qb:CodedProperty", defaults = { "label" : "RDF Datacube Coded Property" })
     pm = commondim(object_type, "QBCodedDimension", "QB Coded Dimension Specific Elements" )
-    am = AttributeMapping(scope=pm, attr="codelist.uri", predicate="qb:codelist", is_resource=True).save()
+    am = AttributeMapping(scope=pm, attr="codelist.uri", predicate="qb:codeList", is_resource=True).save()
 
     #(object_type,created) = ObjectType.objects.get_or_create(uri="qb4st:CoordDimension", defaults = { "label" : "RDF Datacube Spatial Coordinate DimensionProperty" })
     #pm = commondim(object_type, "QBSpatialDimension", "QB Spatial Dimension Specific Elements" )
-    #am = AttributeMapping(scope=pm, attr="crs", predicate="qb:codelist", is_resource=True).save()
+    #am = AttributeMapping(scope=pm, attr="crs", predicate="qb:codeList", is_resource=True).save()
  
 def commondim(object_type,content_type_label, title):
     content_type = ContentType.objects.get(app_label="dataweb",model=content_type_label.lower())
